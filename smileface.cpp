@@ -8,9 +8,9 @@ static QShader getShader(const QString &name)
 }
 
 static float vertexData[] = {
-    0.0f,   0.5f,   1.0f, 0.0f, 0.0f,
-    -0.5f,  -0.5f,   0.0f, 1.0f, 0.0f,
-    0.5f,  -0.5f,   0.0f, 0.0f, 1.0f,
+    0.0f,   0.5f,  1.0f, 0.0f, 0.0f,
+   -0.5f,  -0.5f,  0.0f, 1.0f, 0.0f,
+    0.5f,  -0.5f,  0.0f, 1.0f, 1.0f,
 };
 
 void SmileFaceRenderer::initialize(QRhiCommandBuffer *cb)
@@ -112,7 +112,8 @@ void SmileFaceRenderer::render(QRhiCommandBuffer *cb)
     resourceUpdates->updateDynamicBuffer(m_ubuf.get(), 0, 64, modelViewProjection.constData());
 
     // Qt Quick expects premultiplied alpha
-    const QColor clearColor = QColor::fromRgbF(0.5f * m_alpha, 0.5f * m_alpha, 0.7f * m_alpha, m_alpha);
+    // const QColor clearColor = QColor::fromRgbF(0.5f * m_alpha, 0.5f * m_alpha, 0.7f * m_alpha, m_alpha);
+    const QColor clearColor = QColor::fromRgbF(1.0f, 1.0f, 1.0, 1.0);
     cb->beginPass(renderTarget(), clearColor, { 1.0f, 0 }, resourceUpdates);
 
     cb->setGraphicsPipeline(m_pipeline.get());
