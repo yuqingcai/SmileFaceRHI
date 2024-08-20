@@ -58,3 +58,5 @@ qt_add_shaders(appSmileFaceRHI "appSmileFaceRHI_shaders"
         shaders/color.vert
         shaders/color.frag
 )
+
+include_directories(${CMAKE_SOURCE_DIR}/3rdParty/include)

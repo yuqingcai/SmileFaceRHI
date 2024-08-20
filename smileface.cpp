@@ -1,5 +1,8 @@
 #include "smileface.h"
 #include <QFile>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 static QShader getShader(const QString &name)
 {
@@ -8,9 +11,49 @@ static QShader getShader(const QString &name)
 }
 
 static float vertexData[] = {
-    0.0f,   0.5f,  1.0f, 0.0f, 0.0f,
-   -0.5f,  -0.5f,  0.0f, 1.0f, 0.0f,
-    0.5f,  -0.5f,  0.0f, 1.0f, 1.0f,
+    // positions         // colors
+   -100.0f, -100.0f, -100.0f,  1.0f, 0.0f, 0.0f,
+    100.0f, -100.0f, -100.0f,  1.0f, 0.0f, 0.0f,
+    100.0f,  100.0f, -100.0f,  1.0f, 0.0f, 0.0f,
+    100.0f,  100.0f, -100.0f,  1.0f, 0.0f, 0.0f,
+   -100.0f,  100.0f, -100.0f,  1.0f, 0.0f, 0.0f,
+   -100.0f, -100.0f, -100.0f,  1.0f, 0.0f, 0.0f,
+
+   -100.0f, -100.0f,  100.0f,  0.0f, 1.0f, 0.0f,
+    100.0f, -100.0f,  100.0f,  0.0f, 1.0f, 0.0f,
+    100.0f,  100.0f,  100.0f,  0.0f, 1.0f, 0.0f,
+    100.0f,  100.0f,  100.0f,  0.0f, 1.0f, 0.0f,
+   -100.0f,  100.0f,  100.0f,  0.0f, 1.0f, 0.0f,
+   -100.0f, -100.0f,  100.0f,  0.0f, 1.0f, 0.0f,
+
+   -100.0f,  100.0f,  100.0f,  0.0f, 0.0f, 1.0f,
+   -100.0f,  100.0f, -100.0f,  0.0f, 0.0f, 1.0f,
+   -100.0f, -100.0f, -100.0f,  0.0f, 0.0f, 1.0f,
+   -100.0f, -100.0f, -100.0f,  0.0f, 0.0f, 1.0f,
+   -100.0f, -100.0f,  100.0f,  0.0f, 0.0f, 1.0f,
+   -100.0f,  100.0f,  100.0f,  0.0f, 0.0f, 1.0f,
+
+   100.0f,  100.0f,  100.0f,   1.0f, 1.0f, 0.0f,
+   100.0f,  100.0f, -100.0f,   1.0f, 1.0f, 0.0f,
+   100.0f, -100.0f, -100.0f,   1.0f, 1.0f, 0.0f,
+   100.0f, -100.0f, -100.0f,   1.0f, 1.0f, 0.0f,
+   100.0f, -100.0f,  100.0f,   1.0f, 1.0f, 0.0f,
+   100.0f,  100.0f,  100.0f,   1.0f, 1.0f, 0.0f,
+
+   -100.0f, -100.0f, -100.0f,  0.0f, 1.0f, 1.0f,
+    100.0f, -100.0f, -100.0f,  0.0f, 1.0f, 1.0f,
+    100.0f, -100.0f,  100.0f,  0.0f, 1.0f, 1.0f,
+    100.0f, -100.0f,  100.0f,  0.0f, 1.0f, 1.0f,
+   -100.0f, -100.0f,  100.0f,  0.0f, 1.0f, 1.0f,
+   -100.0f, -100.0f, -100.0f,  0.0f, 1.0f, 1.0f,
+
+   -100.0f,  100.0f, -100.0f,  1.0f, 0.0f, 1.0f,
+    100.0f,  100.0f, -100.0f,  1.0f, 0.0f, 1.0f,
+    100.0f,  100.0f,  100.0f,  1.0f, 0.0f, 1.0f,
+    100.0f,  100.0f,  100.0f,  1.0f, 0.0f, 1.0f,
+   -100.0f,  100.0f,  100.0f,  1.0f, 0.0f, 1.0f,
+   -100.0f,  100.0f, -100.0f,  1.0f, 0.0f, 1.0f,
+
 };
 
 void SmileFaceRenderer::initialize(QRhiCommandBuffer *cb)
@@ -44,7 +87,7 @@ void SmileFaceRenderer::initialize(QRhiCommandBuffer *cb)
 
         m_ubuf.reset(m_rhi->newBuffer(QRhiBuffer::Dynamic,
                                       QRhiBuffer::UniformBuffer,
-                                      64));
+                                      64*3));
         m_ubuf->create();
 
 
@@ -68,16 +111,18 @@ void SmileFaceRenderer::initialize(QRhiCommandBuffer *cb)
         });
         QRhiVertexInputLayout inputLayout;
         inputLayout.setBindings({
-            { 5 * sizeof(float) }
+            { 6 * sizeof(float) }
         });
         inputLayout.setAttributes({
-            { 0, 0, QRhiVertexInputAttribute::Float2, 0 },
-            { 0, 1, QRhiVertexInputAttribute::Float3, 2 * sizeof(float) }
+            { 0, 0, QRhiVertexInputAttribute::Float3, 0 },
+            { 0, 1, QRhiVertexInputAttribute::Float3, 3 * sizeof(float) }
         });
         m_pipeline->setSampleCount(m_sampleCount);
         m_pipeline->setVertexInputLayout(inputLayout);
         m_pipeline->setShaderResourceBindings(m_srb.get());
         m_pipeline->setRenderPassDescriptor(renderTarget()->renderPassDescriptor());
+        m_pipeline->setDepthTest(true);
+        m_pipeline->setDepthWrite(true);
         m_pipeline->create();
 
         QRhiResourceUpdateBatch *resourceUpdates = m_rhi->nextResourceUpdateBatch();
@@ -85,13 +130,6 @@ void SmileFaceRenderer::initialize(QRhiCommandBuffer *cb)
         cb->resourceUpdate(resourceUpdates);
 
     }
-
-    const QSize outputSize = renderTarget()->pixelSize();
-    m_viewProjection = m_rhi->clipSpaceCorrMatrix();
-    m_viewProjection.perspective(45.0f,
-                                 outputSize.width() / (float) outputSize.height(),
-                                 0.01f, 1000.0f);
-    m_viewProjection.translate(0, 0, -4);
 
 }
 
@@ -102,27 +140,57 @@ void SmileFaceRenderer::synchronize(QQuickRhiItem *rhiItem)
         m_angle = item->angle();
     if (item->backgroundAlpha() != m_alpha)
         m_alpha = item->backgroundAlpha();
+
+    m_orthoX = item->getOrthoX();
+    m_orthoY = item->getOrthoY();
 }
 
 void SmileFaceRenderer::render(QRhiCommandBuffer *cb)
 {
-    QRhiResourceUpdateBatch *resourceUpdates = m_rhi->nextResourceUpdateBatch();
-    QMatrix4x4 modelViewProjection = m_viewProjection;
-    modelViewProjection.rotate(m_angle, 0, 1, 0);
-    resourceUpdates->updateDynamicBuffer(m_ubuf.get(), 0, 64, modelViewProjection.constData());
+    const QSize outputSize = renderTarget()->pixelSize();
+    m_projection = m_rhi->clipSpaceCorrMatrix();
 
-    // Qt Quick expects premultiplied alpha
-    // const QColor clearColor = QColor::fromRgbF(0.5f * m_alpha, 0.5f * m_alpha, 0.7f * m_alpha, m_alpha);
+    m_projection.perspective(45.0f,
+                             outputSize.width() / (float) outputSize.height(),
+                             10.0f,
+                             1000.0f);
+
+    // 所谓投影是指场景里被显示在Viewport里的内容，投影区域有“大小”和“中心点”这两个属性，
+    // 从人的视觉角度上说，这两个属性决定了看到什么物体以及物体的大小。
+
+    // 使用正交投影，left + right 和 bottom + top决定投影的大小 ，相应的，left和right
+    // 决定了投影的水平中心, bottom 和 top 则决定了投影的垂直中心。
+    // m_projection.ortho(-outputSize.width()/2.0 + m_orthoX,
+    //                    outputSize.width()/2.0 + m_orthoX,
+    //                    -outputSize.height()/2.0 + m_orthoY,
+    //                    outputSize.height()/2.0 + m_orthoY,
+    //                    -200.0f, 10000.0f);
+
+    QRhiResourceUpdateBatch *resourceUpdates = m_rhi->nextResourceUpdateBatch();
+
+    m_model.setToIdentity();
+    m_model.rotate(m_angle, 1, 0, 1);
+
+    // 使用透视投影，相机的z轴位置决定了场景投影范围的“大小”，相机的目标则决定了投影“中心点”。
+    QVector3D cameraPos(0.0f, 0.0f, 800.0f);
+    QVector3D cameraTarget(200.0f, 0.0f, 0.0f);
+    QVector3D cameraUp(0.0f, 1.0f, 0.0f);
+    m_view.setToIdentity();
+    m_view.lookAt(cameraPos, cameraTarget, cameraUp);
+
+    resourceUpdates->updateDynamicBuffer(m_ubuf.get(), 0, 64, m_model.constData());
+    resourceUpdates->updateDynamicBuffer(m_ubuf.get(), 64, 64, m_view.constData());
+    resourceUpdates->updateDynamicBuffer(m_ubuf.get(), 64*2, 64, m_projection.constData());
+
     const QColor clearColor = QColor::fromRgbF(1.0f, 1.0f, 1.0, 1.0);
     cb->beginPass(renderTarget(), clearColor, { 1.0f, 0 }, resourceUpdates);
 
     cb->setGraphicsPipeline(m_pipeline.get());
-    const QSize outputSize = renderTarget()->pixelSize();
     cb->setViewport(QRhiViewport(0, 0, outputSize.width(), outputSize.height()));
     cb->setShaderResources();
     const QRhiCommandBuffer::VertexInput vbufBinding(m_vbuf.get(), 0);
     cb->setVertexInput(0, 1, &vbufBinding);
-    cb->draw(3);
+    cb->draw(36);
 
     cb->endPass();
 }
@@ -130,9 +198,55 @@ void SmileFaceRenderer::render(QRhiCommandBuffer *cb)
 
 SmileFace::SmileFace()
 {
-
+    setFocusPolicy(Qt::ClickFocus);
+    setAcceptHoverEvents(true);
+    setAcceptedMouseButtons(Qt::LeftButton);
+    setFlag(ItemAcceptsInputMethod, true);
 }
 
+void SmileFace::hoverMoveEvent(QHoverEvent *event)
+{
+    // qDebug() << event->position();
+    return QQuickRhiItem::hoverMoveEvent(event);
+}
+
+void SmileFace::mousePressEvent(QMouseEvent *event)
+{
+    // qDebug() << event->position();
+    return QQuickRhiItem::mousePressEvent(event);
+}
+
+void SmileFace::wheelEvent(QWheelEvent *event)
+{
+    qDebug() << "Mouse wheel delta: "
+             << event->angleDelta();
+    if (event->angleDelta().y() > 0) {
+        m_orthoY += 10.0;
+    }
+    else if (event->angleDelta().y() < 0) {
+       m_orthoY -= 10.0;
+    }
+    return QQuickRhiItem::wheelEvent(event);
+}
+
+
+void SmileFace::keyPressEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Up) {
+        m_orthoY -= 10.0;
+    }
+    else if (event->key() == Qt::Key_Down) {
+        m_orthoY += 10.0;
+    }
+    else if (event->key() == Qt::Key_Left) {
+        m_orthoX += 10.0;
+    }
+    else if (event->key() == Qt::Key_Right) {
+        m_orthoX -= 10.0;
+    }
+
+    return QQuickRhiItem::keyPressEvent(event);
+}
 
 QQuickRhiItemRenderer* SmileFace::createRenderer()
 {
@@ -157,4 +271,15 @@ void SmileFace::setBackgroundAlpha(float a)
     m_alpha = a;
     emit backgroundAlphaChanged();
     update();
+}
+
+float SmileFace::getOrthoX()
+{
+    return m_orthoX;
+}
+
+
+float SmileFace::getOrthoY()
+{
+    return m_orthoY;
 }

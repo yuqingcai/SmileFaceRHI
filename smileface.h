@@ -20,9 +20,14 @@ private:
     std::unique_ptr<QRhiBuffer> m_ubuf;
     std::unique_ptr<QRhiShaderResourceBindings> m_srb;
 
-    QMatrix4x4 m_viewProjection;
+    QMatrix4x4 m_model;
+    QMatrix4x4 m_view;
+    QMatrix4x4 m_projection;
+
     float m_angle = 0.0f;
     float m_alpha = 1.0f;
+    float m_orthoX = 0.0f;
+    float m_orthoY = 0.0f;
 };
 
 class SmileFace: public QQuickRhiItem
@@ -41,6 +46,15 @@ public:
 
     float backgroundAlpha() const { return m_alpha; }
     void setBackgroundAlpha(float a);
+    float getOrthoX();
+    float getOrthoY();
+
+protected:
+    void hoverMoveEvent(QHoverEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void wheelEvent(QWheelEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
+
 
 signals:
     void angleChanged();
@@ -49,6 +63,8 @@ signals:
 private:
     float m_angle = 0.0f;
     float m_alpha = 1.0f;
+    float m_orthoX = 0.0f;
+    float m_orthoY = 0.0f;
 };
 
 #endif // SMILEFACE_H
