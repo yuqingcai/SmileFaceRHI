@@ -201,9 +201,9 @@ void SmileFaceRenderer::render(QRhiCommandBuffer *cb)
     m_view.lookAt(cameraPos, cameraTarget, cameraUp);
 
 
-    const QColor clearColor = QColor::fromRgbF(1.0f, 1.0f, 1.0, 1.0);
+    const QColor clearColor = QColor::fromRgbF(1.0f, 1.0f, 0.0, 1.0);
 
-    cb->beginPass(renderTarget(), clearColor, { 1.0f, 0 });
+    cb->beginPass(renderTarget(), Qt::white, { 1.0f, 0 });
 
     cb->setGraphicsPipeline(m_pipeline.get());
     cb->setViewport(QRhiViewport(0, 0, outputSize.width(), outputSize.height()));

@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import SmileFaceRHI
 
-Window {
+ApplicationWindow {
     id: mainWindow
     width: 640
     height: 480
@@ -20,14 +20,14 @@ Window {
         anchors.left: parent.left
         anchors.right: parent.right
         height : 48
-        color: Control.background
+        color: Qt.rgba(1, 1, 1, 0.0)
 
         Rectangle {
             id: toolbarborderBottom
             y: parent.height - height
             width: parent.width
             height:1
-            color: "darkgray"
+            color: "lightgray"
         }
     }
 
@@ -43,8 +43,8 @@ Window {
             id: handleDelegate1
             implicitWidth: 1
             implicitHeight: 1
-            color: SplitHandle.pressed ? "darkgray"
-                : (SplitHandle.hovered ? Qt.lighter("lightgray", 1.1) : "darkgray")
+            color: SplitHandle.pressed ? "lightgray"
+                : (SplitHandle.hovered ? "lightgray" : "lightgray")
 
             containmentMask: Item {
                 x: (handleDelegate1.width - width) / 2
@@ -63,8 +63,8 @@ Window {
                 id: handleDelegate3
                 implicitWidth: 1
                 implicitHeight: 1
-                color: SplitHandle.pressed ? "darkgray"
-                    : (SplitHandle.hovered ? Qt.lighter("lightgray", 1.1) : "darkgray")
+                color: SplitHandle.pressed ? "lightgray"
+                    : (SplitHandle.hovered ? "lightgray" : "lightgray")
 
                 containmentMask: Item {
                     y: (handleDelegate3.height - height) / 2
@@ -76,11 +76,13 @@ Window {
             Rectangle {
                 SplitView.fillWidth: true
                 SplitView.preferredHeight: 500
+                color: Qt.rgba(1, 1, 1, 0.0)
             }
 
             Rectangle {
                 SplitView.fillWidth: true
                 SplitView.fillHeight: true
+                color: Qt.rgba(1, 1, 1, 0.0)
             }
 
         }
@@ -97,8 +99,8 @@ Window {
                 id: handleDelegate2
                 implicitWidth: 1
                 implicitHeight: 1
-                color: SplitHandle.pressed ? "darkgray"
-                    : (SplitHandle.hovered ? Qt.lighter("lightgray", 1.1) : "darkgray")
+                color: SplitHandle.pressed ? "lightgray"
+                    : (SplitHandle.hovered ? "lightgray" : "lightgray")
 
                 containmentMask: Item {
                     y: (handleDelegate2.height - height) / 2
@@ -156,6 +158,7 @@ Window {
 
             Rectangle {
                 SplitView.preferredHeight: 200
+                color: Qt.rgba(1, 1, 1, 0.0)
             }
         }
 

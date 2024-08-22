@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 
-Window {
+ApplicationWindow {
     id: projectManagerWindow
     width: Screen.width * 0.4
     height: Screen.height * 0.45
@@ -12,5 +12,7 @@ Window {
     MainMenu {
         id: mainMenu
     }
+
+
 
 }
