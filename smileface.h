@@ -29,6 +29,9 @@ private:
     float m_alpha = 1.0f;
     float m_orthoX = 0.0f;
     float m_orthoY = 0.0f;
+
+    int N = 4;
+    int ONE_UBUF_SIZE = 0;
 };
 
 class SmileFace: public QQuickRhiItem

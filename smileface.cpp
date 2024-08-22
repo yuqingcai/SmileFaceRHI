@@ -64,6 +64,8 @@ static float vertexData[] = {
 
 };
 
+
+
 void SmileFaceRenderer::initialize(QRhiCommandBuffer *cb)
 {
     if (m_rhi != rhi()) {
@@ -93,28 +95,33 @@ void SmileFaceRenderer::initialize(QRhiCommandBuffer *cb)
                                       sizeof(vertexData)));
         m_vbuf->create();
 
+        const int UB_SIZE = 64;
+        // assuming a uniform block with mat4 matrix
+        ONE_UBUF_SIZE = m_rhi->ubufAligned(UB_SIZE);
+
         m_ubuf.reset(m_rhi->newBuffer(QRhiBuffer::Dynamic,
                                       QRhiBuffer::UniformBuffer,
-                                      64*2));
+                                      ONE_UBUF_SIZE*2));
         m_ubuf->create();
 
         m_ubuf2.reset(m_rhi->newBuffer(QRhiBuffer::Dynamic,
                                        QRhiBuffer::UniformBuffer,
-                                       64*4));
+                                       ONE_UBUF_SIZE * N));
         m_ubuf2->create();
-
 
         m_srb.reset(m_rhi->newShaderResourceBindings());
         m_srb->setBindings({
-            QRhiShaderResourceBinding::uniformBuffer(
+            QRhiShaderResourceBinding::uniformBufferWithDynamicOffset(
                 0,
                 QRhiShaderResourceBinding::VertexStage,
-                m_ubuf.get()),
-
-            QRhiShaderResourceBinding::uniformBuffer(
+                m_ubuf2.get(),
+                ONE_UBUF_SIZE),
+            QRhiShaderResourceBinding::uniformBufferWithDynamicOffset(
                 1,
                 QRhiShaderResourceBinding::VertexStage,
-                m_ubuf2.get()),
+                m_ubuf.get(),
+                ONE_UBUF_SIZE),
+
         });
         m_srb->create();
 
@@ -214,11 +221,12 @@ void SmileFaceRenderer::render(QRhiCommandBuffer *cb)
                                          64,
                                          m_projection.constData());
 
+
     // 第一个物件的 model 矩阵
     m_model.setToIdentity();
     m_model.rotate(m_angle, 1, 1, 1);
     resourceUpdates->updateDynamicBuffer(m_ubuf2.get(),
-                                         0,
+                                         ONE_UBUF_SIZE * 0,
                                          64,
                                          m_model.constData());
     // 第二个物件的 model 矩阵
@@ -226,7 +234,7 @@ void SmileFaceRenderer::render(QRhiCommandBuffer *cb)
     m_model.rotate(20, 0, 1, 0);
     m_model.translate(-200, -200, 0);
     resourceUpdates->updateDynamicBuffer(m_ubuf2.get(),
-                                         64,
+                                         ONE_UBUF_SIZE * 1,
                                          64,
                                          m_model.constData());
 
@@ -235,7 +243,7 @@ void SmileFaceRenderer::render(QRhiCommandBuffer *cb)
     m_model.rotate(20, 0, 1, 0);
     m_model.translate(200, 200, 0);
     resourceUpdates->updateDynamicBuffer(m_ubuf2.get(),
-                                         64*2,
+                                         ONE_UBUF_SIZE * 2,
                                          64,
                                          m_model.constData());
 
@@ -244,17 +252,21 @@ void SmileFaceRenderer::render(QRhiCommandBuffer *cb)
     m_model.rotate(30, 0, 1, 0);
     m_model.translate(200, -200, 0);
     resourceUpdates->updateDynamicBuffer(m_ubuf2.get(),
-                                         64*3,
+                                         ONE_UBUF_SIZE * 3,
                                          64,
                                          m_model.constData());
     // 更新
     cb->resourceUpdate(resourceUpdates);
+    for (int i = 0; i < N - 1; i ++) {
+        QRhiCommandBuffer::DynamicOffset dynOfs[] = { { 0, i * ONE_UBUF_SIZE } };
+        cb->setShaderResources(m_srb.get(), 1, dynOfs);
+        cb->draw(36);
+    }
 
-    cb->setShaderResources();
 
-    cb->draw(36, 2, 0, 0);
-
-    cb->draw(6, 2, 36, 2);
+    QRhiCommandBuffer::DynamicOffset dynOfs[] = { { 0, 3 * ONE_UBUF_SIZE } };
+    cb->setShaderResources(m_srb.get(), 1, dynOfs);
+    cb->draw(6, 1, 36);
 
 
     cb->endPass();
