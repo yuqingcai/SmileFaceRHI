@@ -1,60 +1,17 @@
 import QtQuick
 import QtQuick.Controls
-import QtQuick.Layouts
 import SmileFaceRHI
-import Qt.labs.platform
 
 Window {
     id: mainWindow
     width: 640
     height: 480
     visible: true
+    visibility: "Maximized"
     title: qsTr("SmileFaceRHI")
 
-    MenuBar {
+    MainMenu {
         id: mainMenu
-        // width: parent.width
-
-        Menu {
-            id: fileMenu
-            title: qsTr("File")
-
-            MenuItem {
-                text: qsTr("Ololo")
-                onTriggered: console.debug("ololo menu item clicked")
-            }
-
-            // this one won't show up in File menu because of its `role`,
-            // and it will actually appear in the main menu - under the application name,
-            // where you'd usually expect About menu to be
-            MenuItem {
-                //text: qsTr("About")    // no need to set the text,
-                role: MenuItem.AboutRole // because it gets generated
-                onTriggered: console.debug("show your About window")
-            }
-        }
-
-        Menu {
-            id: editMenu
-            title: qsTr("Edit")
-
-            MenuItem {
-                text: qsTr("Stuff")
-                onTriggered: console.debug("stuff menu item clicked")
-            }
-            MenuItem {
-                text: qsTr("Stuff")
-                onTriggered: console.debug("stuff menu item clicked")
-            }
-            MenuItem {
-                text: qsTr("Stuff")
-                onTriggered: console.debug("stuff menu item clicked")
-            }
-            MenuItem {
-                text: qsTr("Stuff")
-                onTriggered: console.debug("stuff menu item clicked")
-            }
-        }
     }
 
     Rectangle {
@@ -65,7 +22,6 @@ Window {
         height : 48
         color: Control.background
 
-        // border
         Rectangle {
             id: toolbarborderBottom
             y: parent.height - height
@@ -73,7 +29,6 @@ Window {
             height:1
             color: "darkgray"
         }
-
     }
 
 
@@ -99,9 +54,35 @@ Window {
         }
 
 
-        Rectangle {
-            SplitView.preferredWidth: 200
-            SplitView.maximumWidth: 400
+        SplitView {
+            SplitView.preferredWidth: 350
+            // SplitView.maximumWidth: 400
+            orientation: Qt.Vertical
+
+            handle: Rectangle {
+                id: handleDelegate3
+                implicitWidth: 1
+                implicitHeight: 1
+                color: SplitHandle.pressed ? "darkgray"
+                    : (SplitHandle.hovered ? Qt.lighter("lightgray", 1.1) : "darkgray")
+
+                containmentMask: Item {
+                    y: (handleDelegate3.height - height) / 2
+                    width: splitView.width
+                    height: 16
+                }
+            }
+
+            Rectangle {
+                SplitView.fillWidth: true
+                SplitView.preferredHeight: 500
+            }
+
+            Rectangle {
+                SplitView.fillWidth: true
+                SplitView.fillHeight: true
+            }
+
         }
 
 
@@ -178,9 +159,9 @@ Window {
             }
         }
 
-        Rectangle {
-            SplitView.preferredWidth: 200
-            SplitView.maximumWidth: 400
+        SplitView {
+            SplitView.preferredWidth: 400
+            // SplitView.maximumWidth: 400
         }
     }
 }

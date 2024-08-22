@@ -12,7 +12,9 @@ int main(int argc, char *argv[])
         &app,
         []() { QCoreApplication::exit(-1); },
         Qt::QueuedConnection);
+
     engine.loadFromModule("SmileFaceRHI", "Main");
+    engine.loadFromModule("SmileFaceRHI", "ProjectManager");
 
     return app.exec();
 }

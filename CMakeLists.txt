@@ -20,6 +20,8 @@ qt_add_qml_module(appSmileFaceRHI
     QML_FILES
         Main.qml
         SOURCES smileface.h smileface.cpp
+        QML_FILES ProjectManager.qml
+        QML_FILES MainMenu.qml
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
