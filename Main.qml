@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import SmileFaceRHI
+import Qt.labs.platform
 
 Window {
     id: mainWindow
@@ -12,74 +13,46 @@ Window {
 
     MenuBar {
         id: mainMenu
-        width: parent.width
+        // width: parent.width
 
         Menu {
-            title: "File"
-            Action {
-                text: "New"
-                shortcut: "Ctrl+N"
-                onTriggered: {
-                    console.log("New file created");
-                }
+            id: fileMenu
+            title: qsTr("File")
+
+            MenuItem {
+                text: qsTr("Ololo")
+                onTriggered: console.debug("ololo menu item clicked")
             }
-            Action {
-                text: "Open"
-                shortcut: "Ctrl+O"
-                onTriggered: {
-                    console.log("File opened");
-                }
-            }
-            MenuSeparator {}
-            Action {
-                text: "Exit"
-                shortcut: "Ctrl+Q"
-                onTriggered: {
-                    Qt.quit();
-                }
+
+            // this one won't show up in File menu because of its `role`,
+            // and it will actually appear in the main menu - under the application name,
+            // where you'd usually expect About menu to be
+            MenuItem {
+                //text: qsTr("About")    // no need to set the text,
+                role: MenuItem.AboutRole // because it gets generated
+                onTriggered: console.debug("show your About window")
             }
         }
+
         Menu {
-            title: "Edit"
-            Action {
-                text: "Undo"
-                shortcut: "Ctrl+Z"
-                onTriggered: {
-                    console.log("Undo action triggered");
-                }
+            id: editMenu
+            title: qsTr("Edit")
+
+            MenuItem {
+                text: qsTr("Stuff")
+                onTriggered: console.debug("stuff menu item clicked")
             }
-            Action {
-                text: "Redo"
-                shortcut: "Ctrl+Y"
-                onTriggered: {
-                    console.log("Redo action triggered");
-                }
+            MenuItem {
+                text: qsTr("Stuff")
+                onTriggered: console.debug("stuff menu item clicked")
             }
-        }
-        Menu {
-            title: "Edit"
-            Action {
-                text: "Undo"
-                shortcut: "Ctrl+Z"
-                onTriggered: {
-                    console.log("Undo action triggered");
-                }
+            MenuItem {
+                text: qsTr("Stuff")
+                onTriggered: console.debug("stuff menu item clicked")
             }
-            Action {
-                text: "Redo"
-                shortcut: "Ctrl+Y"
-                onTriggered: {
-                    console.log("Redo action triggered");
-                }
-            }
-        }
-        Menu {
-            title: "Help"
-            Action {
-                text: "About"
-                onTriggered: {
-                    console.log("About dialog opened");
-                }
+            MenuItem {
+                text: qsTr("Stuff")
+                onTriggered: console.debug("stuff menu item clicked")
             }
         }
     }
@@ -211,3 +184,4 @@ Window {
         }
     }
 }
+

@@ -95,10 +95,9 @@ void SmileFaceRenderer::initialize(QRhiCommandBuffer *cb)
                                       sizeof(vertexData)));
         m_vbuf->create();
 
+        // ONE_UBUF_SIZE 必须根据实际硬件定义的方式对齐
         const int UB_SIZE = 64;
-        // assuming a uniform block with mat4 matrix
         ONE_UBUF_SIZE = m_rhi->ubufAligned(UB_SIZE);
-
         m_ubuf.reset(m_rhi->newBuffer(QRhiBuffer::Dynamic,
                                       QRhiBuffer::UniformBuffer,
                                       ONE_UBUF_SIZE*2));
@@ -110,16 +109,18 @@ void SmileFaceRenderer::initialize(QRhiCommandBuffer *cb)
         m_ubuf2->create();
 
         m_srb.reset(m_rhi->newShaderResourceBindings());
+
+        // uniform 缓冲区使用 uniformBufferWithDynamicOffset 函数声明绑定
         m_srb->setBindings({
             QRhiShaderResourceBinding::uniformBufferWithDynamicOffset(
                 0,
                 QRhiShaderResourceBinding::VertexStage,
-                m_ubuf2.get(),
+                m_ubuf.get(),
                 ONE_UBUF_SIZE),
             QRhiShaderResourceBinding::uniformBufferWithDynamicOffset(
                 1,
                 QRhiShaderResourceBinding::VertexStage,
-                m_ubuf.get(),
+                m_ubuf2.get(),
                 ONE_UBUF_SIZE),
 
         });
@@ -215,12 +216,10 @@ void SmileFaceRenderer::render(QRhiCommandBuffer *cb)
                                          0,
                                          64,
                                          m_view.constData());
-
     resourceUpdates->updateDynamicBuffer(m_ubuf.get(),
                                          64,
                                          64,
                                          m_projection.constData());
-
 
     // 第一个物件的 model 矩阵
     m_model.setToIdentity();
@@ -258,13 +257,13 @@ void SmileFaceRenderer::render(QRhiCommandBuffer *cb)
     // 更新
     cb->resourceUpdate(resourceUpdates);
     for (int i = 0; i < N - 1; i ++) {
-        QRhiCommandBuffer::DynamicOffset dynOfs[] = { { 0, i * ONE_UBUF_SIZE } };
+        // 对当前物件渲染指定 uniform 缓冲区偏移
+        QRhiCommandBuffer::DynamicOffset dynOfs[] = { { 1, i * ONE_UBUF_SIZE } };
         cb->setShaderResources(m_srb.get(), 1, dynOfs);
         cb->draw(36);
     }
 
-
-    QRhiCommandBuffer::DynamicOffset dynOfs[] = { { 0, 3 * ONE_UBUF_SIZE } };
+    QRhiCommandBuffer::DynamicOffset dynOfs[] = { { 1, 3 * ONE_UBUF_SIZE } };
     cb->setShaderResources(m_srb.get(), 1, dynOfs);
     cb->draw(6, 1, 36);
 
