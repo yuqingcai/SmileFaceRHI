@@ -18,6 +18,7 @@ private:
     std::unique_ptr<QRhiGraphicsPipeline> m_pipeline;
     std::unique_ptr<QRhiBuffer> m_vbuf;
     std::unique_ptr<QRhiBuffer> m_ubuf;
+    std::unique_ptr<QRhiBuffer> m_ubuf2;
     std::unique_ptr<QRhiShaderResourceBindings> m_srb;
 
     QMatrix4x4 m_model;

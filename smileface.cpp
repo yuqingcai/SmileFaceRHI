@@ -54,6 +54,14 @@ static float vertexData[] = {
    -100.0f,  100.0f,  100.0f,  1.0f, 0.0f, 1.0f,
    -100.0f,  100.0f, -100.0f,  1.0f, 0.0f, 1.0f,
 
+
+   -110.0f, -110.0f, -50.0f,  1.0f, 0.0f, 0.0f,
+    110.0f, -110.0f, -50.0f,  1.0f, 0.0f, 0.0f,
+    110.0f,  110.0f, -50.0f,  1.0f, 0.0f, 0.0f,
+    110.0f,  110.0f, -50.0f,  1.0f, 0.0f, 0.0f,
+   -110.0f,  110.0f, -50.0f,  1.0f, 0.0f, 0.0f,
+   -110.0f, -110.0f, -50.0f,  1.0f, 0.0f, 0.0f,
+
 };
 
 void SmileFaceRenderer::initialize(QRhiCommandBuffer *cb)
@@ -87,15 +95,26 @@ void SmileFaceRenderer::initialize(QRhiCommandBuffer *cb)
 
         m_ubuf.reset(m_rhi->newBuffer(QRhiBuffer::Dynamic,
                                       QRhiBuffer::UniformBuffer,
-                                      64*3));
+                                      64*2));
         m_ubuf->create();
+
+        m_ubuf2.reset(m_rhi->newBuffer(QRhiBuffer::Dynamic,
+                                       QRhiBuffer::UniformBuffer,
+                                       64*4));
+        m_ubuf2->create();
 
 
         m_srb.reset(m_rhi->newShaderResourceBindings());
         m_srb->setBindings({
-            QRhiShaderResourceBinding::uniformBuffer(0,
+            QRhiShaderResourceBinding::uniformBuffer(
+                0,
                 QRhiShaderResourceBinding::VertexStage,
                 m_ubuf.get()),
+
+            QRhiShaderResourceBinding::uniformBuffer(
+                1,
+                QRhiShaderResourceBinding::VertexStage,
+                m_ubuf2.get()),
         });
         m_srb->create();
 
@@ -157,44 +176,90 @@ void SmileFaceRenderer::render(QRhiCommandBuffer *cb)
 
     // 所谓投影是指场景里被显示在Viewport里的内容，投影区域有“大小”和“中心点”这两个属性，
     // 从人的视觉角度上说，这两个属性决定了看到什么物体以及物体的大小。
-
     // 使用正交投影，left + right 和 bottom + top决定投影的大小 ，相应的，left和right
     // 决定了投影的水平中心, bottom 和 top 则决定了投影的垂直中心。
+    //
     // m_projection.ortho(-outputSize.width()/2.0 + m_orthoX,
     //                    outputSize.width()/2.0 + m_orthoX,
     //                    -outputSize.height()/2.0 + m_orthoY,
     //                    outputSize.height()/2.0 + m_orthoY,
     //                    -200.0f, 10000.0f);
 
-    QRhiResourceUpdateBatch *resourceUpdates = m_rhi->nextResourceUpdateBatch();
-
-    m_model.setToIdentity();
-    m_model.rotate(m_angle, 1, 0, 1);
-
     // 使用透视投影，相机的z轴位置决定了场景投影范围的“大小”，相机的目标则决定了投影“中心点”。
     QVector3D cameraPos(0.0f, 0.0f, 800.0f);
-    QVector3D cameraTarget(200.0f, 0.0f, 0.0f);
+    QVector3D cameraTarget(0.0f, 0.0f, 0.0f);
     QVector3D cameraUp(0.0f, 1.0f, 0.0f);
     m_view.setToIdentity();
     m_view.lookAt(cameraPos, cameraTarget, cameraUp);
 
-    resourceUpdates->updateDynamicBuffer(m_ubuf.get(), 0, 64, m_model.constData());
-    resourceUpdates->updateDynamicBuffer(m_ubuf.get(), 64, 64, m_view.constData());
-    resourceUpdates->updateDynamicBuffer(m_ubuf.get(), 64*2, 64, m_projection.constData());
 
     const QColor clearColor = QColor::fromRgbF(1.0f, 1.0f, 1.0, 1.0);
-    cb->beginPass(renderTarget(), clearColor, { 1.0f, 0 }, resourceUpdates);
+
+    cb->beginPass(renderTarget(), clearColor, { 1.0f, 0 });
 
     cb->setGraphicsPipeline(m_pipeline.get());
     cb->setViewport(QRhiViewport(0, 0, outputSize.width(), outputSize.height()));
-    cb->setShaderResources();
     const QRhiCommandBuffer::VertexInput vbufBinding(m_vbuf.get(), 0);
     cb->setVertexInput(0, 1, &vbufBinding);
-    cb->draw(36);
+
+    // 批量更新 uniform 缓冲区
+    QRhiResourceUpdateBatch *resourceUpdates = m_rhi->nextResourceUpdateBatch();
+    resourceUpdates->updateDynamicBuffer(m_ubuf.get(),
+                                         0,
+                                         64,
+                                         m_view.constData());
+
+    resourceUpdates->updateDynamicBuffer(m_ubuf.get(),
+                                         64,
+                                         64,
+                                         m_projection.constData());
+
+    // 第一个物件的 model 矩阵
+    m_model.setToIdentity();
+    m_model.rotate(m_angle, 1, 1, 1);
+    resourceUpdates->updateDynamicBuffer(m_ubuf2.get(),
+                                         0,
+                                         64,
+                                         m_model.constData());
+    // 第二个物件的 model 矩阵
+    m_model.setToIdentity();
+    m_model.rotate(20, 0, 1, 0);
+    m_model.translate(-200, -200, 0);
+    resourceUpdates->updateDynamicBuffer(m_ubuf2.get(),
+                                         64,
+                                         64,
+                                         m_model.constData());
+
+    // 第三个物件的 model 矩阵
+    m_model.setToIdentity();
+    m_model.rotate(20, 0, 1, 0);
+    m_model.translate(200, 200, 0);
+    resourceUpdates->updateDynamicBuffer(m_ubuf2.get(),
+                                         64*2,
+                                         64,
+                                         m_model.constData());
+
+    // 第四个物件的 model 矩阵
+    m_model.setToIdentity();
+    m_model.rotate(30, 0, 1, 0);
+    m_model.translate(200, -200, 0);
+    resourceUpdates->updateDynamicBuffer(m_ubuf2.get(),
+                                         64*3,
+                                         64,
+                                         m_model.constData());
+    // 更新
+    cb->resourceUpdate(resourceUpdates);
+
+    cb->setShaderResources();
+
+    cb->draw(36, 2, 0, 0);
+
+    cb->draw(6, 2, 36, 2);
+
 
     cb->endPass();
-}
 
+}
 
 SmileFace::SmileFace()
 {
@@ -206,7 +271,7 @@ SmileFace::SmileFace()
 
 void SmileFace::hoverMoveEvent(QHoverEvent *event)
 {
-    // qDebug() << event->position();
+    qDebug() << event->position();
     return QQuickRhiItem::hoverMoveEvent(event);
 }
 
