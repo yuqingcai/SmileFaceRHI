@@ -16,12 +16,11 @@ private:
     int m_sampleCount = 1;
     QRhiTexture::Format m_textureFormat = QRhiTexture::RGBA8;
     std::unique_ptr<QRhiGraphicsPipeline> m_pipeline;
-    std::unique_ptr<QRhiBuffer> m_vbuf;
-    std::unique_ptr<QRhiBuffer> m_ubuf;
-    std::unique_ptr<QRhiBuffer> m_ubuf2;
+    std::unique_ptr<QRhiBuffer> m_vectexBuffer;
+    std::unique_ptr<QRhiBuffer> m_uniformBuffer1;
+    std::unique_ptr<QRhiBuffer> m_uniformBuffer2;
     std::unique_ptr<QRhiShaderResourceBindings> m_srb;
 
-    QMatrix4x4 m_model;
     QMatrix4x4 m_view;
     QMatrix4x4 m_projection;
 
@@ -29,9 +28,15 @@ private:
     float m_alpha = 1.0f;
     float m_orthoX = 0.0f;
     float m_orthoY = 0.0f;
+    float m_zoom = 1.0f;
+    QPointF m_focus = {0.0f, 0.0f};
 
-    int N = 4;
-    int ONE_UBUF_SIZE = 0;
+    int m_uniformBuffer1BlockSize = 0;
+    int m_uniformBuffer1BlockCount = 1;
+    int m_uniformBuffer2BlockSize = 0;
+    static const int m_uniformBuffer2BlockCount = 50000;
+
+    QMatrix4x4 m_models[m_uniformBuffer2BlockCount];
 };
 
 class SmileFace: public QQuickRhiItem
@@ -52,12 +57,16 @@ public:
     void setBackgroundAlpha(float a);
     float getOrthoX();
     float getOrthoY();
+    float getZoom();
+    QPointF& getFocus();
 
 protected:
     void hoverMoveEvent(QHoverEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
+    void keyReleaseEvent(QKeyEvent *event) override;
 
 
 signals:
@@ -69,6 +78,13 @@ private:
     float m_alpha = 1.0f;
     float m_orthoX = 0.0f;
     float m_orthoY = 0.0f;
+    float m_zoom = 1.0f;
+    QPointF m_focus = {0.0f, 0.0f};
+    bool m_spaceButtonDown = false;
+    bool m_leftButtonDown = false;
+
+    QPoint m_mosePosition0 = {0, 0};
+    QPoint m_mosePosition1 = {0, 0};
 };
 
 #endif // SMILEFACE_H

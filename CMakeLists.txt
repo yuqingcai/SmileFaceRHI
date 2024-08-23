@@ -22,6 +22,7 @@ qt_add_qml_module(appSmileFaceRHI
         SOURCES smileface.h smileface.cpp
         QML_FILES ProjectManager.qml
         QML_FILES MainMenu.qml
+        SOURCES stage.h stage.cpp
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
@@ -59,6 +60,16 @@ qt_add_shaders(appSmileFaceRHI "appSmileFaceRHI_shaders"
     FILES
         shaders/color.vert
         shaders/color.frag
+)
+
+qt_add_shaders(appSmileFaceRHI "appSmileFaceRHI_stage_shaders"
+    # PRECOMPILE
+    # OPTIMIZED
+    PREFIX
+        /SmileFaceRHI
+    FILES
+        shaders/stage.vert
+        shaders/stage.frag
 )
 
 include_directories(${CMAKE_SOURCE_DIR}/3rdParty/include)

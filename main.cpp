@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
         Qt::QueuedConnection);
 
     engine.loadFromModule("SmileFaceRHI", "Main");
-    engine.loadFromModule("SmileFaceRHI", "ProjectManager");
+    // engine.loadFromModule("SmileFaceRHI", "ProjectManager");
 
     return app.exec();
 }

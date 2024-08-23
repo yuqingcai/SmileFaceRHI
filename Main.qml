@@ -4,10 +4,10 @@ import SmileFaceRHI
 
 ApplicationWindow {
     id: mainWindow
-    width: 640
-    height: 480
+    width: 1280
+    height: 768
     visible: true
-    visibility: "Maximized"
+    // visibility: "Maximized"
     title: qsTr("SmileFaceRHI")
 
     MainMenu {
@@ -55,7 +55,7 @@ ApplicationWindow {
 
 
         SplitView {
-            SplitView.preferredWidth: 350
+            SplitView.preferredWidth: 250
             // SplitView.maximumWidth: 400
             orientation: Qt.Vertical
 
@@ -113,15 +113,15 @@ ApplicationWindow {
                 SplitView.fillWidth: true
                 SplitView.fillHeight: true
 
-                mirrorVertically: cbMirror.checked
-                sampleCount: cbMSAA.checked ? 4 : 1
-                fixedColorBufferWidth: cbSize.checked ? slSize.value.toFixed(0) : 0
-                fixedColorBufferHeight: cbSize.checked ? slSize.value.toFixed(0) : 0
-                alphaBlending: cbBlend.checked
-                colorBufferFormat: rdFormatRGBA8.checked ? ExampleRhiItem.TextureFormat.RGBA8
-                        : rdFormatFP16.checked ? ExampleRhiItem.TextureFormat.RGBA16F
-                        : rdFormatFP32.checked ? ExampleRhiItem.TextureFormat.RGBA32F
-                        : ExampleRhiItem.TextureFormat.RGB10A2
+                // mirrorVertically: cbMirror.checked
+                // sampleCount: cbMSAA.checked ? 4 : 1
+                // fixedColorBufferWidth: cbSize.checked ? slSize.value.toFixed(0) : 0
+                // fixedColorBufferHeight: cbSize.checked ? slSize.value.toFixed(0) : 0
+                // alphaBlending: cbBlend.checked
+                // colorBufferFormat: rdFormatRGBA8.checked ? ExampleRhiItem.TextureFormat.RGBA8
+                //         : rdFormatFP16.checked ? ExampleRhiItem.TextureFormat.RGBA16F
+                //         : rdFormatFP32.checked ? ExampleRhiItem.TextureFormat.RGBA32F
+                //         : ExampleRhiItem.TextureFormat.RGB10A2
 
                 // custom properties provided by the QQuickRhiItem subclass: angle, backgroundAlpha
                 NumberAnimation on angle {
@@ -156,6 +156,11 @@ ApplicationWindow {
                 ]
             }
 
+            // Stage {
+            //     SplitView.fillWidth: true
+            //     SplitView.fillHeight: true
+            // }
+
             Rectangle {
                 SplitView.preferredHeight: 200
                 color: Qt.rgba(1, 1, 1, 0.0)
@@ -163,8 +168,8 @@ ApplicationWindow {
         }
 
         SplitView {
-            SplitView.preferredWidth: 400
-            // SplitView.maximumWidth: 400
+            SplitView.preferredWidth: 250
+            SplitView.maximumWidth: 250
         }
     }
 }

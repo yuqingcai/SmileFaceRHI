@@ -1,5 +1,7 @@
 #include "smileface.h"
 #include <QFile>
+#include <QCursor>
+#include <QRandomGenerator>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -53,17 +55,7 @@ static float vertexData[] = {
     100.0f,  100.0f,  100.0f,  1.0f, 0.0f, 1.0f,
    -100.0f,  100.0f,  100.0f,  1.0f, 0.0f, 1.0f,
    -100.0f,  100.0f, -100.0f,  1.0f, 0.0f, 1.0f,
-
-
-   -110.0f, -110.0f, -50.0f,  1.0f, 0.0f, 0.0f,
-    110.0f, -110.0f, -50.0f,  1.0f, 0.0f, 0.0f,
-    110.0f,  110.0f, -50.0f,  1.0f, 0.0f, 0.0f,
-    110.0f,  110.0f, -50.0f,  1.0f, 0.0f, 0.0f,
-   -110.0f,  110.0f, -50.0f,  1.0f, 0.0f, 0.0f,
-   -110.0f, -110.0f, -50.0f,  1.0f, 0.0f, 0.0f,
-
 };
-
 
 
 void SmileFaceRenderer::initialize(QRhiCommandBuffer *cb)
@@ -73,7 +65,21 @@ void SmileFaceRenderer::initialize(QRhiCommandBuffer *cb)
         m_pipeline.reset();
 
         qDebug("pipline reset");
-        qDebug("Backend: %s", m_rhi->backendName());
+        qDebug("Backend: %s",                       m_rhi->backendName());
+        qDebug("TextureSizeMin: %d",                m_rhi->resourceLimit(QRhi::TextureSizeMin));
+        qDebug("TextureSizeMax: %d",                m_rhi->resourceLimit(QRhi::TextureSizeMax));
+        qDebug("MaxColorAttachments: %d",           m_rhi->resourceLimit(QRhi::MaxColorAttachments));
+        qDebug("FramesInFlight: %d",                m_rhi->resourceLimit(QRhi::FramesInFlight));
+        qDebug("MaxAsyncReadbackFrames: %d",        m_rhi->resourceLimit(QRhi::MaxAsyncReadbackFrames));
+        qDebug("MaxThreadGroupsPerDimension: %d",   m_rhi->resourceLimit(QRhi::MaxThreadGroupsPerDimension));
+        qDebug("MaxThreadsPerThreadGroup: %d",      m_rhi->resourceLimit(QRhi::MaxThreadsPerThreadGroup));
+        qDebug("MaxThreadGroupX: %d",               m_rhi->resourceLimit(QRhi::MaxThreadGroupX));
+        qDebug("MaxThreadGroupY: %d",               m_rhi->resourceLimit(QRhi::MaxThreadGroupY));
+        qDebug("MaxThreadGroupZ: %d",               m_rhi->resourceLimit(QRhi::MaxThreadGroupZ));
+        qDebug("TextureArraySizeMax: %d",           m_rhi->resourceLimit(QRhi::TextureArraySizeMax));
+        qDebug("MaxUniformBufferRange: %d",         m_rhi->resourceLimit(QRhi::MaxUniformBufferRange));
+        qDebug("MaxVertexInputs: %d",               m_rhi->resourceLimit(QRhi::MaxVertexInputs));
+        qDebug("MaxVertexOutputs: %d",              m_rhi->resourceLimit(QRhi::MaxVertexOutputs));
     }
 
     if (m_sampleCount != renderTarget()->sampleCount()) {
@@ -90,23 +96,36 @@ void SmileFaceRenderer::initialize(QRhiCommandBuffer *cb)
     if (!m_pipeline) {
         m_pipeline.reset(m_rhi->newGraphicsPipeline());
 
-        m_vbuf.reset(m_rhi->newBuffer(QRhiBuffer::Immutable,
+        m_vectexBuffer.reset(m_rhi->newBuffer(QRhiBuffer::Immutable,
                                       QRhiBuffer::VertexBuffer,
                                       sizeof(vertexData)));
-        m_vbuf->create();
+        m_vectexBuffer->create();
 
-        // ONE_UBUF_SIZE 必须根据实际硬件定义的方式对齐
-        const int UB_SIZE = 64;
-        ONE_UBUF_SIZE = m_rhi->ubufAligned(UB_SIZE);
-        m_ubuf.reset(m_rhi->newBuffer(QRhiBuffer::Dynamic,
-                                      QRhiBuffer::UniformBuffer,
-                                      ONE_UBUF_SIZE*2));
-        m_ubuf->create();
+        // uniformbuffer1 的每个block包含两个矩阵，view matrix 和 projection matrix
+        // 每个block必须根据硬件进行对齐。“对齐”是为了在绘图的时候可以通过字节偏移量动态的把
+        // 缓冲区里的某个block值映射到 Shader 里的 uniform block，而偏移量必须是“对齐字节
+        // 数”的整数倍。
+        int block1Size = 64*2;
+        int buffer1Size = 0;
+        m_uniformBuffer1BlockSize = m_rhi->ubufAligned(block1Size);
+        buffer1Size = m_uniformBuffer1BlockSize * m_uniformBuffer1BlockCount;
+        m_uniformBuffer1.reset(m_rhi->newBuffer(QRhiBuffer::Dynamic,
+                                                QRhiBuffer::UniformBuffer,
+                                                buffer1Size));
+        m_uniformBuffer1->create();
 
-        m_ubuf2.reset(m_rhi->newBuffer(QRhiBuffer::Dynamic,
-                                       QRhiBuffer::UniformBuffer,
-                                       ONE_UBUF_SIZE * N));
-        m_ubuf2->create();
+        // uniformbuffer2 的每个block包含1个矩阵：model matrix
+        int block2Size = 64;
+        int buffer2Size = 0;
+        m_uniformBuffer2BlockSize = m_rhi->ubufAligned(block2Size);
+        buffer2Size = m_uniformBuffer2BlockSize * m_uniformBuffer2BlockCount;
+        m_uniformBuffer2.reset(m_rhi->newBuffer(QRhiBuffer::Dynamic,
+                                                QRhiBuffer::UniformBuffer,
+                                                buffer2Size));
+        m_uniformBuffer2->create();
+
+        qDebug("uniform buffer2 size: %d", m_uniformBuffer2.get()->size());
+
 
         m_srb.reset(m_rhi->newShaderResourceBindings());
 
@@ -115,14 +134,13 @@ void SmileFaceRenderer::initialize(QRhiCommandBuffer *cb)
             QRhiShaderResourceBinding::uniformBufferWithDynamicOffset(
                 0,
                 QRhiShaderResourceBinding::VertexStage,
-                m_ubuf.get(),
-                ONE_UBUF_SIZE),
+                m_uniformBuffer1.get(),
+                buffer1Size),
             QRhiShaderResourceBinding::uniformBufferWithDynamicOffset(
                 1,
                 QRhiShaderResourceBinding::VertexStage,
-                m_ubuf2.get(),
-                ONE_UBUF_SIZE),
-
+                m_uniformBuffer2.get(),
+                buffer2Size),
         });
         m_srb->create();
 
@@ -153,23 +171,23 @@ void SmileFaceRenderer::initialize(QRhiCommandBuffer *cb)
         m_pipeline->create();
 
         QRhiResourceUpdateBatch *resourceUpdates = m_rhi->nextResourceUpdateBatch();
-        resourceUpdates->uploadStaticBuffer(m_vbuf.get(), vertexData);
+        resourceUpdates->uploadStaticBuffer(m_vectexBuffer.get(), vertexData);
+
+        for (int i = 0; i < m_uniformBuffer2BlockCount; i ++) {
+            //float base = QRandomGenerator::global()->generateDouble();
+            m_models[i].setToIdentity();
+            m_models[i].scale(1.0);
+            m_models[i].translate(i * 300, 0, 0);
+            resourceUpdates->updateDynamicBuffer(m_uniformBuffer2.get(),
+                                                 m_uniformBuffer2BlockSize * i,
+                                                 64,
+                                                 m_models[i].constData());
+        }
+
         cb->resourceUpdate(resourceUpdates);
 
     }
 
-}
-
-void SmileFaceRenderer::synchronize(QQuickRhiItem *rhiItem)
-{
-    SmileFace *item = static_cast<SmileFace *>(rhiItem);
-    if (item->angle() != m_angle)
-        m_angle = item->angle();
-    if (item->backgroundAlpha() != m_alpha)
-        m_alpha = item->backgroundAlpha();
-
-    m_orthoX = item->getOrthoX();
-    m_orthoY = item->getOrthoY();
 }
 
 void SmileFaceRenderer::render(QRhiCommandBuffer *cb)
@@ -180,7 +198,7 @@ void SmileFaceRenderer::render(QRhiCommandBuffer *cb)
     m_projection.perspective(45.0f,
                              outputSize.width() / (float) outputSize.height(),
                              10.0f,
-                             1000.0f);
+                             1000000.0f);
 
     // 所谓投影是指场景里被显示在Viewport里的内容，投影区域有“大小”和“中心点”这两个属性，
     // 从人的视觉角度上说，这两个属性决定了看到什么物体以及物体的大小。
@@ -194,82 +212,72 @@ void SmileFaceRenderer::render(QRhiCommandBuffer *cb)
     //                    -200.0f, 10000.0f);
 
     // 使用透视投影，相机的z轴位置决定了场景投影范围的“大小”，相机的目标则决定了投影“中心点”。
-    QVector3D cameraPos(0.0f, 0.0f, 800.0f);
-    QVector3D cameraTarget(0.0f, 0.0f, 0.0f);
+    QVector3D cameraPos(0.0f, 0.0f, 800.0f + m_zoom);
+    QVector3D cameraTarget(m_focus.rx(), m_focus.ry(), 0.0f);
     QVector3D cameraUp(0.0f, 1.0f, 0.0f);
     m_view.setToIdentity();
     m_view.lookAt(cameraPos, cameraTarget, cameraUp);
-
-
-    const QColor clearColor = QColor::fromRgbF(1.0f, 1.0f, 0.0, 1.0);
 
     cb->beginPass(renderTarget(), Qt::white, { 1.0f, 0 });
 
     cb->setGraphicsPipeline(m_pipeline.get());
     cb->setViewport(QRhiViewport(0, 0, outputSize.width(), outputSize.height()));
-    const QRhiCommandBuffer::VertexInput vbufBinding(m_vbuf.get(), 0);
+    const QRhiCommandBuffer::VertexInput vbufBinding(m_vectexBuffer.get(), 0);
     cb->setVertexInput(0, 1, &vbufBinding);
 
     // 批量更新 uniform 缓冲区
     QRhiResourceUpdateBatch *resourceUpdates = m_rhi->nextResourceUpdateBatch();
-    resourceUpdates->updateDynamicBuffer(m_ubuf.get(),
+    resourceUpdates->updateDynamicBuffer(m_uniformBuffer1.get(),
                                          0,
                                          64,
                                          m_view.constData());
-    resourceUpdates->updateDynamicBuffer(m_ubuf.get(),
+    resourceUpdates->updateDynamicBuffer(m_uniformBuffer1.get(),
                                          64,
                                          64,
                                          m_projection.constData());
 
-    // 第一个物件的 model 矩阵
-    m_model.setToIdentity();
-    m_model.rotate(m_angle, 1, 1, 1);
-    resourceUpdates->updateDynamicBuffer(m_ubuf2.get(),
-                                         ONE_UBUF_SIZE * 0,
-                                         64,
-                                         m_model.constData());
-    // 第二个物件的 model 矩阵
-    m_model.setToIdentity();
-    m_model.rotate(20, 0, 1, 0);
-    m_model.translate(-200, -200, 0);
-    resourceUpdates->updateDynamicBuffer(m_ubuf2.get(),
-                                         ONE_UBUF_SIZE * 1,
-                                         64,
-                                         m_model.constData());
-
-    // 第三个物件的 model 矩阵
-    m_model.setToIdentity();
-    m_model.rotate(20, 0, 1, 0);
-    m_model.translate(200, 200, 0);
-    resourceUpdates->updateDynamicBuffer(m_ubuf2.get(),
-                                         ONE_UBUF_SIZE * 2,
-                                         64,
-                                         m_model.constData());
-
-    // 第四个物件的 model 矩阵
-    m_model.setToIdentity();
-    m_model.rotate(30, 0, 1, 0);
-    m_model.translate(200, -200, 0);
-    resourceUpdates->updateDynamicBuffer(m_ubuf2.get(),
-                                         ONE_UBUF_SIZE * 3,
-                                         64,
-                                         m_model.constData());
+    for (int i = 0; i < m_uniformBuffer2BlockCount; i ++) {
+        m_models[i].setToIdentity();
+        m_models[i].scale(1.0);
+        // m_models[i].translate((i % 20) * 300, (i/400) * 300, (i % 400) * 300);
+        m_models[i].translate(0, 0, 0);
+        m_models[i].rotate(m_angle, 1, 1, 0);
+        resourceUpdates->updateDynamicBuffer(m_uniformBuffer2.get(),
+                                             m_uniformBuffer2BlockSize * i,
+                                             64,
+                                             m_models[i].constData());
+    }
     // 更新
     cb->resourceUpdate(resourceUpdates);
-    for (int i = 0; i < N - 1; i ++) {
-        // 对当前物件渲染指定 uniform 缓冲区偏移
-        QRhiCommandBuffer::DynamicOffset dynOfs[] = { { 1, i * ONE_UBUF_SIZE } };
-        cb->setShaderResources(m_srb.get(), 1, dynOfs);
-        cb->draw(36);
-    }
 
-    QRhiCommandBuffer::DynamicOffset dynOfs[] = { { 1, 3 * ONE_UBUF_SIZE } };
+
+    QRhiCommandBuffer::DynamicOffset dynOfs[] = { { 1, 49999 * m_uniformBuffer2BlockSize} };
     cb->setShaderResources(m_srb.get(), 1, dynOfs);
-    cb->draw(6, 1, 36);
+    cb->draw(36);
 
+    // for (int i = 0; i < m_uniformBuffer2BlockSize; i ++) {
+    //     // 对当前物件渲染指定 uniform 缓冲区偏移
+    //     QRhiCommandBuffer::DynamicOffset dynOfs[] = { { 1, i * m_uniformBuffer2BlockSize } };
+    //     cb->setShaderResources(m_srb.get(), 1, dynOfs);
+    //     cb->draw(36);
+    // }
 
     cb->endPass();
 
+}
+
+void SmileFaceRenderer::synchronize(QQuickRhiItem *rhiItem)
+{
+    SmileFace *item = static_cast<SmileFace *>(rhiItem);
+    if (item->angle() != m_angle)
+        m_angle = item->angle();
+    if (item->backgroundAlpha() != m_alpha)
+        m_alpha = item->backgroundAlpha();
+
+    m_orthoX = item->getOrthoX();
+    m_orthoY = item->getOrthoY();
+    m_zoom = item->getZoom();
+    m_focus = item->getFocus();
 }
 
 SmileFace::SmileFace()
@@ -282,25 +290,50 @@ SmileFace::SmileFace()
 
 void SmileFace::hoverMoveEvent(QHoverEvent *event)
 {
-    qDebug() << event->position();
+    if (m_spaceButtonDown) {
+
+        int offsetX = (int)event->position().x() - m_mosePosition0.x() - this->width()/2;
+        int offsetY = this->height()/2 - (int)event->position().y() - m_mosePosition0.y();
+
+        m_focus.setX(offsetX);
+        m_focus.setY(offsetY);
+
+        // qDebug() << m_focus << m_mosePosition0 << event->position();
+    }
     return QQuickRhiItem::hoverMoveEvent(event);
 }
 
 void SmileFace::mousePressEvent(QMouseEvent *event)
 {
-    // qDebug() << event->position();
+    if (event->button() == Qt::LeftButton) {
+        if (!m_leftButtonDown) {
+            m_leftButtonDown = true;
+            qDebug("m_leftButtonDown true");
+        }
+    }
     return QQuickRhiItem::mousePressEvent(event);
+}
+
+
+void SmileFace::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton) {
+        if (m_leftButtonDown) {
+            m_leftButtonDown = false;
+            qDebug("m_leftButtonDown false");
+        }
+    }
+    return QQuickRhiItem::mouseReleaseEvent(event);
 }
 
 void SmileFace::wheelEvent(QWheelEvent *event)
 {
-    qDebug() << "Mouse wheel delta: "
-             << event->angleDelta();
+    // qDebug() << "Mouse wheel delta: " << event->angleDelta();
     if (event->angleDelta().y() > 0) {
-        m_orthoY += 10.0;
+        m_zoom += 200.0;
     }
     else if (event->angleDelta().y() < 0) {
-       m_orthoY -= 10.0;
+        m_zoom -= 200.0;
     }
     return QQuickRhiItem::wheelEvent(event);
 }
@@ -309,19 +342,37 @@ void SmileFace::wheelEvent(QWheelEvent *event)
 void SmileFace::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Up) {
-        m_orthoY -= 10.0;
+        m_orthoY -= 100.0;
     }
     else if (event->key() == Qt::Key_Down) {
-        m_orthoY += 10.0;
+        m_orthoY += 100.0;
     }
     else if (event->key() == Qt::Key_Left) {
-        m_orthoX += 10.0;
+        m_orthoX += 100.0;
     }
     else if (event->key() == Qt::Key_Right) {
-        m_orthoX -= 10.0;
+        m_orthoX -= 100.0;
+    }
+    else if (event->key() == Qt::Key_Space) {
+        if (!m_spaceButtonDown) {
+            m_spaceButtonDown = true;
+            qDebug("m_spaceButtonDown true");
+        }
     }
 
     return QQuickRhiItem::keyPressEvent(event);
+}
+
+void SmileFace::keyReleaseEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Space) {
+        if (m_spaceButtonDown) {
+            m_spaceButtonDown = false;
+            qDebug("m_spaceButtonDown false");
+        }
+    }
+
+    return QQuickRhiItem::keyReleaseEvent(event);
 }
 
 QQuickRhiItemRenderer* SmileFace::createRenderer()
@@ -358,4 +409,14 @@ float SmileFace::getOrthoX()
 float SmileFace::getOrthoY()
 {
     return m_orthoY;
+}
+
+float SmileFace::getZoom()
+{
+    return m_zoom;
+}
+
+QPointF& SmileFace::getFocus()
+{
+    return m_focus;
 }
