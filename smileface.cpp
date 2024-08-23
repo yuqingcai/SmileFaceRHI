@@ -127,6 +127,18 @@ void SmileFaceRenderer::initialize(QRhiCommandBuffer *cb)
         qDebug("uniform buffer2 size: %d", m_uniformBuffer2.get()->size());
 
 
+        // uniformbuffer3 的每个block包含1个矩阵：model matrix
+        int block3Size = 64;
+        int buffer3Size = 0;
+        m_uniformBuffer3BlockSize = m_rhi->ubufAligned(block3Size);
+        buffer3Size = m_uniformBuffer3BlockSize * m_uniformBuffer3BlockCount;
+        m_uniformBuffer3.reset(m_rhi->newBuffer(QRhiBuffer::Dynamic,
+                                                QRhiBuffer::UniformBuffer,
+                                                buffer3Size));
+        m_uniformBuffer3->create();
+
+        qDebug("uniform buffer3 size: %d", m_uniformBuffer2.get()->size());
+
         m_srb.reset(m_rhi->newShaderResourceBindings());
 
         // uniform 缓冲区使用 uniformBufferWithDynamicOffset 函数声明绑定
@@ -141,6 +153,11 @@ void SmileFaceRenderer::initialize(QRhiCommandBuffer *cb)
                 QRhiShaderResourceBinding::VertexStage,
                 m_uniformBuffer2.get(),
                 buffer2Size),
+            QRhiShaderResourceBinding::uniformBufferWithDynamicOffset(
+                2,
+                QRhiShaderResourceBinding::VertexStage,
+                m_uniformBuffer3.get(),
+                buffer3Size),
         });
         m_srb->create();
 
@@ -172,17 +189,6 @@ void SmileFaceRenderer::initialize(QRhiCommandBuffer *cb)
 
         QRhiResourceUpdateBatch *resourceUpdates = m_rhi->nextResourceUpdateBatch();
         resourceUpdates->uploadStaticBuffer(m_vectexBuffer.get(), vertexData);
-
-        for (int i = 0; i < m_uniformBuffer2BlockCount; i ++) {
-            //float base = QRandomGenerator::global()->generateDouble();
-            m_models[i].setToIdentity();
-            m_models[i].scale(1.0);
-            m_models[i].translate(i * 300, 0, 0);
-            resourceUpdates->updateDynamicBuffer(m_uniformBuffer2.get(),
-                                                 m_uniformBuffer2BlockSize * i,
-                                                 64,
-                                                 m_models[i].constData());
-        }
 
         cb->resourceUpdate(resourceUpdates);
 
@@ -237,27 +243,66 @@ void SmileFaceRenderer::render(QRhiCommandBuffer *cb)
                                          m_projection.constData());
 
     for (int i = 0; i < m_uniformBuffer2BlockCount; i ++) {
-        m_models[i].setToIdentity();
-        m_models[i].scale(1.0);
-        // m_models[i].translate((i % 20) * 300, (i/400) * 300, (i % 400) * 300);
-        m_models[i].translate(0, 0, 0);
-        m_models[i].rotate(m_angle, 1, 1, 0);
+        m_model2s[i].setToIdentity();
+        m_model2s[i].scale(1.0);
+        m_model2s[i].translate(i * 300, 300, 0);
+        m_model2s[i].rotate(m_angle, 1, 1, 0);
         resourceUpdates->updateDynamicBuffer(m_uniformBuffer2.get(),
                                              m_uniformBuffer2BlockSize * i,
                                              64,
-                                             m_models[i].constData());
+                                             m_model2s[i].constData());
     }
+
+    for (int i = 0; i < m_uniformBuffer3BlockCount; i ++) {
+        m_model3s[i].setToIdentity();
+        m_model3s[i].scale(1.0);
+        m_model3s[i].translate(i * 300, 300, 0);
+        m_model3s[i].rotate(m_angle, 1, 1, 0);
+        resourceUpdates->updateDynamicBuffer(m_uniformBuffer3.get(),
+                                             m_uniformBuffer3BlockSize * i,
+                                             64,
+                                             m_model3s[i].constData());
+    }
+
     // 更新
     cb->resourceUpdate(resourceUpdates);
 
 
-    QRhiCommandBuffer::DynamicOffset dynOfs[] = { { 1, 49999 * m_uniformBuffer2BlockSize} };
-    cb->setShaderResources(m_srb.get(), 1, dynOfs);
-    cb->draw(36);
+    // QRhiCommandBuffer::DynamicOffset dynOfs[] = { { 1, 2 * m_uniformBuffer2BlockSize} };
+    // cb->setShaderResources(m_srb.get(), 1, dynOfs);
+    // cb->draw(36);
 
-    // for (int i = 0; i < m_uniformBuffer2BlockSize; i ++) {
+    for (int i = 0; i < m_uniformBuffer2BlockSize; i ++) {
+        // 对当前物件渲染指定 uniform 缓冲区偏移
+        QRhiCommandBuffer::DynamicOffset dynOfs[] = { { 1, i * m_uniformBuffer2BlockSize } };
+        cb->setShaderResources(m_srb.get(), 1, dynOfs);
+        cb->draw(36);
+    }
+
+    for (int i = 0; i < m_uniformBuffer2BlockCount; i ++) {
+        m_model2s[i].setToIdentity();
+        m_model2s[i].scale(1.0);
+        m_model2s[i].translate(i * 300, -300, 0);
+        m_model2s[i].rotate(m_angle, 1, 1, 0);
+        resourceUpdates->updateDynamicBuffer(m_uniformBuffer2.get(),
+                                             m_uniformBuffer2BlockSize * i,
+                                             64,
+                                             m_model2s[i].constData());
+    }
+
+    // 更新
+    cb->resourceUpdate(resourceUpdates);
+
+    for (int i = 0; i < m_uniformBuffer2BlockSize; i ++) {
+        // 对当前物件渲染指定 uniform 缓冲区偏移
+        QRhiCommandBuffer::DynamicOffset dynOfs[] = { { 1, i * m_uniformBuffer2BlockSize } };
+        cb->setShaderResources(m_srb.get(), 1, dynOfs);
+        cb->draw(36);
+    }
+
+    // for (int i = 0; i < m_uniformBuffer3BlockSize; i ++) {
     //     // 对当前物件渲染指定 uniform 缓冲区偏移
-    //     QRhiCommandBuffer::DynamicOffset dynOfs[] = { { 1, i * m_uniformBuffer2BlockSize } };
+    //     QRhiCommandBuffer::DynamicOffset dynOfs[] = { { 2, i * m_uniformBuffer3BlockSize } };
     //     cb->setShaderResources(m_srb.get(), 1, dynOfs);
     //     cb->draw(36);
     // }

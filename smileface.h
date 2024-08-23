@@ -18,7 +18,20 @@ private:
     std::unique_ptr<QRhiGraphicsPipeline> m_pipeline;
     std::unique_ptr<QRhiBuffer> m_vectexBuffer;
     std::unique_ptr<QRhiBuffer> m_uniformBuffer1;
+    int m_uniformBuffer1BlockSize = 0;
+    int m_uniformBuffer1BlockCount = 1;
+
     std::unique_ptr<QRhiBuffer> m_uniformBuffer2;
+    int m_uniformBuffer2BlockSize = 0;
+    static const int m_uniformBuffer2BlockCount = 256;
+    QMatrix4x4 m_model2s[m_uniformBuffer2BlockCount];
+
+
+    std::unique_ptr<QRhiBuffer> m_uniformBuffer3;
+    int m_uniformBuffer3BlockSize = 0;
+    static const int m_uniformBuffer3BlockCount = 256;
+    QMatrix4x4 m_model3s[m_uniformBuffer2BlockCount];
+
     std::unique_ptr<QRhiShaderResourceBindings> m_srb;
 
     QMatrix4x4 m_view;
@@ -31,12 +44,6 @@ private:
     float m_zoom = 1.0f;
     QPointF m_focus = {0.0f, 0.0f};
 
-    int m_uniformBuffer1BlockSize = 0;
-    int m_uniformBuffer1BlockCount = 1;
-    int m_uniformBuffer2BlockSize = 0;
-    static const int m_uniformBuffer2BlockCount = 50000;
-
-    QMatrix4x4 m_models[m_uniformBuffer2BlockCount];
 };
 
 class SmileFace: public QQuickRhiItem
