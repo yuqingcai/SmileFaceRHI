@@ -152,9 +152,9 @@ static float vertexData[] = {
 
 
 
-    -100.0f, -100.0f, 0.0f,   1.0f, 0.0f, 0.0f,
-    100.0f, -100.0f, 0.0f,   1.0f, 0.0f, 0.0f,
-    100.0f,  100.0f, 0.0f,   1.0f, 0.0f, 0.0f,
+    -100.0f, -100.0f, 0.0f,   0.0f, 0.0f, 0.0f,
+    100.0f, -100.0f, 0.0f,   0.0f, 0.0f, 0.0f,
+    100.0f,  100.0f, 0.0f,   0.0f, 0.0f, 0.0f,
 
 };
 
@@ -177,6 +177,7 @@ void SmileFaceRenderer::initialize(QRhiCommandBuffer *cb)
 {
     if (m_rhi != rhi()) {
         m_rhi = rhi();
+
         m_pipeline.reset();
 
         qDebug("pipline reset");
@@ -195,6 +196,253 @@ void SmileFaceRenderer::initialize(QRhiCommandBuffer *cb)
         qDebug("MaxUniformBufferRange: %d",         m_rhi->resourceLimit(QRhi::MaxUniformBufferRange));
         qDebug("MaxVertexInputs: %d",               m_rhi->resourceLimit(QRhi::MaxVertexInputs));
         qDebug("MaxVertexOutputs: %d",              m_rhi->resourceLimit(QRhi::MaxVertexOutputs));
+
+        if (m_rhi->isFeatureSupported(QRhi::MultisampleTexture)) {
+            qDebug("MultisampleTexture supported");
+        }
+        else {
+            qDebug("MultisampleTexture not supported");
+        }
+        if (m_rhi->isFeatureSupported(QRhi::MultisampleRenderBuffer)) {
+            qDebug("MultisampleRenderBuffer supported");
+        }
+        else {
+            qDebug("MultisampleRenderBuffer not supported");
+        }
+        if (m_rhi->isFeatureSupported(QRhi::DebugMarkers)) {
+            qDebug("DebugMarkers supported");
+        }
+        else {
+            qDebug("DebugMarkers not supported");
+        }
+        if (m_rhi->isFeatureSupported(QRhi::Timestamps)) {
+            qDebug("Timestamps supported");
+        }
+        else {
+            qDebug("Timestamps not supported");
+        }
+        if (m_rhi->isFeatureSupported(QRhi::Instancing)) {
+            qDebug("Instancing supported");
+        }
+        else {
+            qDebug("Instancing not supported");
+        }
+        if (m_rhi->isFeatureSupported(QRhi::CustomInstanceStepRate)) {
+            qDebug("CustomInstanceStepRate supported");
+        }
+        else {
+            qDebug("CustomInstanceStepRate not supported");
+        }
+        if (m_rhi->isFeatureSupported(QRhi::PrimitiveRestart)) {
+            qDebug("PrimitiveRestart supported");
+        }
+        else {
+            qDebug("PrimitiveRestart not supported");
+        }
+        if (m_rhi->isFeatureSupported(QRhi::NonDynamicUniformBuffers)) {
+            qDebug("NonDynamicUniformBuffers supported");
+        }
+        else {
+            qDebug("NonDynamicUniformBuffers not supported");
+        }
+        if (m_rhi->isFeatureSupported(QRhi::NonFourAlignedEffectiveIndexBufferOffset)) {
+            qDebug("NonFourAlignedEffectiveIndexBufferOffset supported");
+        }
+        else {
+            qDebug("NonFourAlignedEffectiveIndexBufferOffset not supported");
+        }
+        if (m_rhi->isFeatureSupported(QRhi::NPOTTextureRepeat)) {
+            qDebug("NPOTTextureRepeat supported");
+        }
+        else {
+            qDebug("NPOTTextureRepeat not supported");
+        }
+        if (m_rhi->isFeatureSupported(QRhi::RedOrAlpha8IsRed)) {
+            qDebug("RedOrAlpha8IsRed supported");
+        }
+        else {
+            qDebug("RedOrAlpha8IsRed not supported");
+        }
+        if (m_rhi->isFeatureSupported(QRhi::ElementIndexUint)) {
+            qDebug("ElementIndexUint supported");
+        }
+        else {
+            qDebug("ElementIndexUint not supported");
+        }
+        if (m_rhi->isFeatureSupported(QRhi::Compute)) {
+            qDebug("Compute supported");
+        }
+        else {
+            qDebug("Compute not supported");
+        }
+        if (m_rhi->isFeatureSupported(QRhi::WideLines)) {
+            qDebug("WideLines supported");
+        }
+        else {
+            qDebug("WideLines not supported");
+        }
+        if (m_rhi->isFeatureSupported(QRhi::VertexShaderPointSize)) {
+            qDebug("VertexShaderPointSize supported");
+        }
+        else {
+            qDebug("VertexShaderPointSize not supported");
+        }
+        if (m_rhi->isFeatureSupported(QRhi::BaseVertex)) {
+            qDebug("BaseVertex supported");
+        }
+        else {
+            qDebug("BaseVertex not supported");
+        }
+        if (m_rhi->isFeatureSupported(QRhi::BaseInstance)) {
+            qDebug("BaseInstance supported");
+        }
+        else {
+            qDebug("BaseInstance not supported");
+        }
+        if (m_rhi->isFeatureSupported(QRhi::TriangleFanTopology)) {
+            qDebug("TriangleFanTopology supported");
+        }
+        else {
+            qDebug("TriangleFanTopology not supported");
+        }
+        if (m_rhi->isFeatureSupported(QRhi::ReadBackNonUniformBuffer)) {
+            qDebug("ReadBackNonUniformBuffer supported");
+        }
+        else {
+            qDebug("ReadBackNonUniformBuffer not supported");
+        }
+        if (m_rhi->isFeatureSupported(QRhi::ReadBackNonBaseMipLevel)) {
+            qDebug("ReadBackNonBaseMipLevel supported");
+        }
+        else {
+            qDebug("ReadBackNonBaseMipLevel not supported");
+        }
+        if (m_rhi->isFeatureSupported(QRhi::TexelFetch)) {
+            qDebug("TexelFetch supported");
+        }
+        else {
+            qDebug("TexelFetch not supported");
+        }
+        if (m_rhi->isFeatureSupported(QRhi::RenderToNonBaseMipLevel)) {
+            qDebug("RenderToNonBaseMipLevel supported");
+        }
+        else {
+            qDebug("RenderToNonBaseMipLevel not supported");
+        }
+        if (m_rhi->isFeatureSupported(QRhi::IntAttributes)) {
+            qDebug("IntAttributes supported");
+        }
+        else {
+            qDebug("IntAttributes not supported");
+        }
+        if (m_rhi->isFeatureSupported(QRhi::ScreenSpaceDerivatives)) {
+            qDebug("ScreenSpaceDerivatives supported");
+        }
+        else {
+            qDebug("ScreenSpaceDerivatives not supported");
+        }
+        if (m_rhi->isFeatureSupported(QRhi::ReadBackAnyTextureFormat)) {
+            qDebug("ReadBackAnyTextureFormat supported");
+        }
+        else {
+            qDebug("ReadBackAnyTextureFormat not supported");
+        }
+        if (m_rhi->isFeatureSupported(QRhi::PipelineCacheDataLoadSave)) {
+            qDebug("PipelineCacheDataLoadSave supported");
+        }
+        else {
+            qDebug("PipelineCacheDataLoadSave not supported");
+        }
+        if (m_rhi->isFeatureSupported(QRhi::ImageDataStride)) {
+            qDebug("ImageDataStride supported");
+        }
+        else {
+            qDebug("ImageDataStride not supported");
+        }
+        if (m_rhi->isFeatureSupported(QRhi::RenderBufferImport)) {
+            qDebug("RenderBufferImport supported");
+        }
+        else {
+            qDebug("RenderBufferImport not supported");
+        }
+        if (m_rhi->isFeatureSupported(QRhi::ThreeDimensionalTextures)) {
+            qDebug("ThreeDimensionalTextures supported");
+        }
+        else {
+            qDebug("ThreeDimensionalTextures not supported");
+        }
+        if (m_rhi->isFeatureSupported(QRhi::RenderTo3DTextureSlice)) {
+            qDebug("RenderTo3DTextureSlice supported");
+        }
+        else {
+            qDebug("RenderTo3DTextureSlice not supported");
+        }
+        if (m_rhi->isFeatureSupported(QRhi::TextureArrays)) {
+            qDebug("TextureArrays supported");
+        }
+        else {
+            qDebug("TextureArrays not supported");
+        }
+        if (m_rhi->isFeatureSupported(QRhi::Tessellation)) {
+            qDebug("Tessellation supported");
+        }
+        else {
+            qDebug("Tessellation not supported");
+        }
+        if (m_rhi->isFeatureSupported(QRhi::GeometryShader)) {
+            qDebug("GeometryShader supported");
+        }
+        else {
+            qDebug("GeometryShader not supported");
+        }
+        if (m_rhi->isFeatureSupported(QRhi::TextureArrayRange)) {
+            qDebug("TextureArrayRange supported");
+        }
+        else {
+            qDebug("TextureArrayRange not supported");
+        }
+        if (m_rhi->isFeatureSupported(QRhi::NonFillPolygonMode)) {
+            qDebug("NonFillPolygonMode supported");
+        }
+        else {
+            qDebug("NonFillPolygonMode not supported");
+        }
+        if (m_rhi->isFeatureSupported(QRhi::OneDimensionalTextures)) {
+            qDebug("OneDimensionalTextures supported");
+        }
+        else {
+            qDebug("OneDimensionalTextures not supported");
+        }
+        if (m_rhi->isFeatureSupported(QRhi::OneDimensionalTextureMipmaps)) {
+            qDebug("OneDimensionalTextureMipmaps supported");
+        }
+        else {
+            qDebug("OneDimensionalTextureMipmaps not supported");
+        }
+        if (m_rhi->isFeatureSupported(QRhi::HalfAttributes)) {
+            qDebug("HalfAttributes supported");
+        }
+        else {
+            qDebug("HalfAttributes not supported");
+        }
+        if (m_rhi->isFeatureSupported(QRhi::RenderToOneDimensionalTexture)) {
+            qDebug("RenderToOneDimensionalTexture supported");
+        }
+        else {
+            qDebug("RenderToOneDimensionalTexture not supported");
+        }
+        if (m_rhi->isFeatureSupported(QRhi::ThreeDimensionalTextureMipmaps)) {
+            qDebug("ThreeDimensionalTextureMipmaps supported");
+        }
+        else {
+            qDebug("ThreeDimensionalTextureMipmaps not supported");
+        }
+        if (m_rhi->isFeatureSupported(QRhi::MultiView)) {
+            qDebug("MultiView supported");
+        }
+        else {
+            qDebug("MultiView not supported");
+        }
     }
 
     if (m_sampleCount != renderTarget()->sampleCount()) {
@@ -347,31 +595,42 @@ void SmileFaceRenderer::render(QRhiCommandBuffer *cb)
                                m_projection.constData());
 
     for (int i = 0; i < m_instances; i ++) {
-        QMatrix4x4 model;
-        model.setToIdentity();
-        model.scale(1.0);
-        model.translate(i* 400, 0, 0);
-        model.rotate(m_angle, 0, 1, 0);
+
+        if (i == 0) {
+            m_models[i] = glm::translate(glm::mat4(1.0f),
+                                         glm::vec3(400, 0, 0));
+            m_models[i] = glm::scale(m_models[i], glm::vec3(2.0f, 0.5f, 1.0f));
+            m_models[i] = glm::rotate(m_models[i],
+                                      qDegreesToRadians(m_angle),
+                                      glm::vec3(1.0f, 0.0f, 0.0f));
+        }
+        if (i == 1) {
+            m_models[i] = glm::translate(glm::mat4(1.0f),
+                                         glm::vec3(0, 400, 0));
+            m_models[i] = glm::rotate(m_models[i],
+                                      qDegreesToRadians(m_angle),
+                                      glm::vec3(0.0f, 1.0f, 0.0f));
+        }
+        if (i == 2) {
+            m_models[i] = glm::translate(glm::mat4(1.0f),
+                                         glm::vec3(0, 0, 400));
+            m_models[i] = glm::rotate(m_models[i],
+                                      qDegreesToRadians(m_angle),
+                                      glm::vec3(0.0f, 0.0f, 1.0f));
+        }
+        if (i == 3) {
+            m_models[i] = glm::translate(glm::mat4(1.0f),
+                                         glm::vec3(0, 400, 400));
+            m_models[i] = glm::rotate(m_models[i],
+                                      qDegreesToRadians(m_angle),
+                                      glm::vec3(1.0f, 1.0f, 0.0f));
+        }
         batch->uploadStaticBuffer(m_modelBuffer.get(),
-                                  i * 64,
-                                  64,
-                                  model.constData());
-
-        // batch->updateDynamicBuffer(m_modelBuffer.get(),
-        //                            i * 64,
-        //                            64,
-        //                            model.constData());
-
-        // m_models[i] = glm::translate(glm::mat4(1.0f),
-        //                              glm::vec3(i* 400, 0, 0));
-        // m_models[i] = glm::rotate(m_models[i],
-        //                           qDegreesToRadians(m_angle),
-        //                           glm::vec3(1.0f, 1.0f, 0.0f));
-        // batch->updateDynamicBuffer(m_modelBuffer.get(),
-        //                                      i * sizeof(glm::mat4),
-        //                                      sizeof(glm::mat4),
-        //                                      &m_models[i]);
+                                  i * sizeof(float) * 16,
+                                  sizeof(float) * 16,
+                                  &m_models[i]);
     }
+
 
     // 更新
     cb->resourceUpdate(batch);
@@ -383,11 +642,10 @@ void SmileFaceRenderer::render(QRhiCommandBuffer *cb)
     // 完一个实例（而不是每绘制完一个顶点），model顶点属性的索引才会进行一次递增，这样就能
     // 做到每个绘制的一个实例对应 model 顶点属性数组里的一个 model 矩阵。
     cb->draw(36, 1, 0, 0);
-
-    // 绘制其他实例，注意实例id的参数指定。
+    // // 绘制其他实例，注意实例id的参数指定。
     cb->draw(36, 1, 36 * 1, 1);
     cb->draw(36, 1, 36 * 2, 2);
-    cb->draw(3,  1, 36 * 3, 3);
+    cb->draw(3,  1, 36 * 3, 0);
 
     cb->endPass();
 }
