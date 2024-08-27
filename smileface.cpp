@@ -152,7 +152,7 @@ static float vertexData[] = {
 
 
 
-   -100.0f, -100.0f, 0.0f,   1.0f, 0.0f, 0.0f,
+    -100.0f, -100.0f, 0.0f,   1.0f, 0.0f, 0.0f,
     100.0f, -100.0f, 0.0f,   1.0f, 0.0f, 0.0f,
     100.0f,  100.0f, 0.0f,   1.0f, 0.0f, 0.0f,
 
@@ -232,8 +232,8 @@ void SmileFaceRenderer::initialize(QRhiCommandBuffer *cb)
         m_uniformBufferBlockSize = m_rhi->ubufAligned(blockSize);
         bufferSize = m_uniformBufferBlockSize * m_uniformBufferBlockCount;
         m_uniformBuffer.reset(m_rhi->newBuffer(QRhiBuffer::Dynamic,
-                                                QRhiBuffer::UniformBuffer,
-                                                bufferSize));
+                                               QRhiBuffer::UniformBuffer,
+                                               bufferSize));
         m_uniformBuffer->create();
 
 
@@ -263,22 +263,22 @@ void SmileFaceRenderer::initialize(QRhiCommandBuffer *cb)
 
         QRhiVertexInputLayout inputLayout;
         inputLayout.setBindings({
-            // PerVertex 表示该顶点属性的索引是以“顶点”进行递增的
-            { 6 * sizeof(float), QRhiVertexInputBinding::PerVertex },
-            // PerInstance 表示该顶点属性的索引是以“实例”进行递增的
-            { sizeof(glm::mat4), QRhiVertexInputBinding::PerInstance },
-        });
+                                 // PerVertex 表示该顶点属性的索引是以“顶点”进行递增的
+                                 { 6 * sizeof(float), QRhiVertexInputBinding::PerVertex },
+                                 // PerInstance 表示该顶点属性的索引是以“实例”进行递增的
+                                 { sizeof(glm::mat4), QRhiVertexInputBinding::PerInstance },
+                                 });
 
         inputLayout.setAttributes({
-            { 0, 0, QRhiVertexInputAttribute::Float3, 0 },
-            { 0, 1, QRhiVertexInputAttribute::Float3, 3 * sizeof(float) },
-            // binding1
-            // model矩阵由4个 vec4构成，每个vec4代表一列，从location2开始，每个列对应一个location。
-            { 1, 2, QRhiVertexInputAttribute::Float4, 0 },
-            { 1, 3, QRhiVertexInputAttribute::Float4, 4 * sizeof(float) },
-            { 1, 4, QRhiVertexInputAttribute::Float4, 8 * sizeof(float) },
-            { 1, 5, QRhiVertexInputAttribute::Float4, 12 * sizeof(float) },
-        });
+                                   { 0, 0, QRhiVertexInputAttribute::Float3, 0 },
+                                   { 0, 1, QRhiVertexInputAttribute::Float3, 3 * sizeof(float) },
+                                   // binding1
+                                   // model矩阵由4个 vec4构成，每个vec4代表一列，从location2开始，每个列对应一个location。
+                                   { 1, 2, QRhiVertexInputAttribute::Float4, 0 },
+                                   { 1, 3, QRhiVertexInputAttribute::Float4, 4 * sizeof(float) },
+                                   { 1, 4, QRhiVertexInputAttribute::Float4, 8 * sizeof(float) },
+                                   { 1, 5, QRhiVertexInputAttribute::Float4, 12 * sizeof(float) },
+                                   });
         m_pipeline->setSampleCount(m_sampleCount);
         m_pipeline->setVertexInputLayout(inputLayout);
         m_pipeline->setShaderResourceBindings(m_srb.get());
