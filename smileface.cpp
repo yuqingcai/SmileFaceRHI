@@ -645,7 +645,7 @@ void SmileFaceRenderer::render(QRhiCommandBuffer *cb)
     // // 绘制其他实例，注意实例id的参数指定。
     cb->draw(36, 1, 36 * 1, 1);
     cb->draw(36, 1, 36 * 2, 2);
-    cb->draw(3,  1, 36 * 3, 0);
+    cb->draw(3,  1, 36 * 3, 3);
 
     cb->endPass();
 }
