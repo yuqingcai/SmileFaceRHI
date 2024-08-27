@@ -3,10 +3,16 @@
 
 #include <QQuickRhiItem>
 #include <rhi/qrhi.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <iostream>
 
 class SmileFaceRenderer : public QQuickRhiItemRenderer
 {
 public:
+    SmileFaceRenderer();
+    ~SmileFaceRenderer();
     void initialize(QRhiCommandBuffer *cb) override;
     void synchronize(QQuickRhiItem *item) override;
     void render(QRhiCommandBuffer *cb) override;
@@ -17,8 +23,9 @@ private:
     QRhiTexture::Format m_textureFormat = QRhiTexture::RGBA8;
     std::unique_ptr<QRhiGraphicsPipeline> m_pipeline;
     std::unique_ptr<QRhiBuffer> m_vectexBuffer;
-    std::unique_ptr<QRhiBuffer> m_uniformBuffer1;
-    std::unique_ptr<QRhiBuffer> m_uniformBuffer2;
+    std::unique_ptr<QRhiBuffer> m_modelBuffer;
+
+    std::unique_ptr<QRhiBuffer> m_uniformBuffer;
     std::unique_ptr<QRhiShaderResourceBindings> m_srb;
 
     QMatrix4x4 m_view;
@@ -31,12 +38,11 @@ private:
     float m_zoom = 1.0f;
     QPointF m_focus = {0.0f, 0.0f};
 
-    int m_uniformBuffer1BlockSize = 0;
-    int m_uniformBuffer1BlockCount = 1;
-    int m_uniformBuffer2BlockSize = 0;
-    static const int m_uniformBuffer2BlockCount = 50000;
+    int m_uniformBufferBlockSize = 0;
+    int m_uniformBufferBlockCount = 1;
 
-    QMatrix4x4 m_models[m_uniformBuffer2BlockCount];
+    int m_instances = 4;
+    glm::mat4* m_models;
 };
 
 class SmileFace: public QQuickRhiItem

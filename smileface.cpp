@@ -2,9 +2,7 @@
 #include <QFile>
 #include <QCursor>
 #include <QRandomGenerator>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+#include <QtMath>
 
 static QShader getShader(const QString &name)
 {
@@ -13,50 +11,167 @@ static QShader getShader(const QString &name)
 }
 
 static float vertexData[] = {
-    // positions         // colors
-   -100.0f, -100.0f, -100.0f,  1.0f, 0.0f, 0.0f,
-    100.0f, -100.0f, -100.0f,  1.0f, 0.0f, 0.0f,
-    100.0f,  100.0f, -100.0f,  1.0f, 0.0f, 0.0f,
-    100.0f,  100.0f, -100.0f,  1.0f, 0.0f, 0.0f,
-   -100.0f,  100.0f, -100.0f,  1.0f, 0.0f, 0.0f,
-   -100.0f, -100.0f, -100.0f,  1.0f, 0.0f, 0.0f,
+    // positions                // colors
+    -100.0f, -100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
+    100.0f, -100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
+    100.0f,  100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
+    100.0f,  100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
+    -100.0f,  100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
+    -100.0f, -100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
 
-   -100.0f, -100.0f,  100.0f,  0.0f, 1.0f, 0.0f,
-    100.0f, -100.0f,  100.0f,  0.0f, 1.0f, 0.0f,
-    100.0f,  100.0f,  100.0f,  0.0f, 1.0f, 0.0f,
-    100.0f,  100.0f,  100.0f,  0.0f, 1.0f, 0.0f,
-   -100.0f,  100.0f,  100.0f,  0.0f, 1.0f, 0.0f,
-   -100.0f, -100.0f,  100.0f,  0.0f, 1.0f, 0.0f,
+    -100.0f, -100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
+    100.0f, -100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
+    100.0f,  100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
+    100.0f,  100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
+    -100.0f,  100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
+    -100.0f, -100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
 
-   -100.0f,  100.0f,  100.0f,  0.0f, 0.0f, 1.0f,
-   -100.0f,  100.0f, -100.0f,  0.0f, 0.0f, 1.0f,
-   -100.0f, -100.0f, -100.0f,  0.0f, 0.0f, 1.0f,
-   -100.0f, -100.0f, -100.0f,  0.0f, 0.0f, 1.0f,
-   -100.0f, -100.0f,  100.0f,  0.0f, 0.0f, 1.0f,
-   -100.0f,  100.0f,  100.0f,  0.0f, 0.0f, 1.0f,
+    -100.0f,  100.0f,  100.0f,   0.0f, 0.0f, 1.0f,
+    -100.0f,  100.0f, -100.0f,   0.0f, 0.0f, 1.0f,
+    -100.0f, -100.0f, -100.0f,   0.0f, 0.0f, 1.0f,
+    -100.0f, -100.0f, -100.0f,   0.0f, 0.0f, 1.0f,
+    -100.0f, -100.0f,  100.0f,   0.0f, 0.0f, 1.0f,
+    -100.0f,  100.0f,  100.0f,   0.0f, 0.0f, 1.0f,
 
-   100.0f,  100.0f,  100.0f,   1.0f, 1.0f, 0.0f,
-   100.0f,  100.0f, -100.0f,   1.0f, 1.0f, 0.0f,
-   100.0f, -100.0f, -100.0f,   1.0f, 1.0f, 0.0f,
-   100.0f, -100.0f, -100.0f,   1.0f, 1.0f, 0.0f,
-   100.0f, -100.0f,  100.0f,   1.0f, 1.0f, 0.0f,
-   100.0f,  100.0f,  100.0f,   1.0f, 1.0f, 0.0f,
+    100.0f,  100.0f,  100.0f,    1.0f, 1.0f, 0.0f,
+    100.0f,  100.0f, -100.0f,    1.0f, 1.0f, 0.0f,
+    100.0f, -100.0f, -100.0f,    1.0f, 1.0f, 0.0f,
+    100.0f, -100.0f, -100.0f,    1.0f, 1.0f, 0.0f,
+    100.0f, -100.0f,  100.0f,    1.0f, 1.0f, 0.0f,
+    100.0f,  100.0f,  100.0f,    1.0f, 1.0f, 0.0f,
 
-   -100.0f, -100.0f, -100.0f,  0.0f, 1.0f, 1.0f,
-    100.0f, -100.0f, -100.0f,  0.0f, 1.0f, 1.0f,
-    100.0f, -100.0f,  100.0f,  0.0f, 1.0f, 1.0f,
-    100.0f, -100.0f,  100.0f,  0.0f, 1.0f, 1.0f,
-   -100.0f, -100.0f,  100.0f,  0.0f, 1.0f, 1.0f,
-   -100.0f, -100.0f, -100.0f,  0.0f, 1.0f, 1.0f,
+    -100.0f, -100.0f, -100.0f,   0.0f, 1.0f, 1.0f,
+    100.0f, -100.0f, -100.0f,   0.0f, 1.0f, 1.0f,
+    100.0f, -100.0f,  100.0f,   0.0f, 1.0f, 1.0f,
+    100.0f, -100.0f,  100.0f,   0.0f, 1.0f, 1.0f,
+    -100.0f, -100.0f,  100.0f,   0.0f, 1.0f, 1.0f,
+    -100.0f, -100.0f, -100.0f,   0.0f, 1.0f, 1.0f,
 
-   -100.0f,  100.0f, -100.0f,  1.0f, 0.0f, 1.0f,
-    100.0f,  100.0f, -100.0f,  1.0f, 0.0f, 1.0f,
-    100.0f,  100.0f,  100.0f,  1.0f, 0.0f, 1.0f,
-    100.0f,  100.0f,  100.0f,  1.0f, 0.0f, 1.0f,
-   -100.0f,  100.0f,  100.0f,  1.0f, 0.0f, 1.0f,
-   -100.0f,  100.0f, -100.0f,  1.0f, 0.0f, 1.0f,
+    -100.0f,  100.0f, -100.0f,   1.0f, 0.0f, 1.0f,
+    100.0f,  100.0f, -100.0f,   1.0f, 0.0f, 1.0f,
+    100.0f,  100.0f,  100.0f,   1.0f, 0.0f, 1.0f,
+    100.0f,  100.0f,  100.0f,   1.0f, 0.0f, 1.0f,
+    -100.0f,  100.0f,  100.0f,   1.0f, 0.0f, 1.0f,
+    -100.0f,  100.0f, -100.0f,   1.0f, 0.0f, 1.0f,
+
+
+
+
+
+
+
+    -100.0f, -100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
+    100.0f, -100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
+    100.0f,  100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
+    100.0f,  100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
+    -100.0f,  100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
+    -100.0f, -100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
+
+    -100.0f, -100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
+    100.0f, -100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
+    100.0f,  100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
+    100.0f,  100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
+    -100.0f,  100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
+    -100.0f, -100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
+
+    -100.0f,  100.0f,  100.0f,   0.0f, 0.0f, 1.0f,
+    -100.0f,  100.0f, -100.0f,   0.0f, 0.0f, 1.0f,
+    -100.0f, -100.0f, -100.0f,   0.0f, 0.0f, 1.0f,
+    -100.0f, -100.0f, -100.0f,   0.0f, 0.0f, 1.0f,
+    -100.0f, -100.0f,  100.0f,   0.0f, 0.0f, 1.0f,
+    -100.0f,  100.0f,  100.0f,   0.0f, 0.0f, 1.0f,
+
+    100.0f,  100.0f,  100.0f,    1.0f, 1.0f, 0.0f,
+    100.0f,  100.0f, -100.0f,    1.0f, 1.0f, 0.0f,
+    100.0f, -100.0f, -100.0f,    1.0f, 1.0f, 0.0f,
+    100.0f, -100.0f, -100.0f,    1.0f, 1.0f, 0.0f,
+    100.0f, -100.0f,  100.0f,    1.0f, 1.0f, 0.0f,
+    100.0f,  100.0f,  100.0f,    1.0f, 1.0f, 0.0f,
+
+    -100.0f, -100.0f, -100.0f,   0.0f, 1.0f, 1.0f,
+    100.0f, -100.0f, -100.0f,   0.0f, 1.0f, 1.0f,
+    100.0f, -100.0f,  100.0f,   0.0f, 1.0f, 1.0f,
+    100.0f, -100.0f,  100.0f,   0.0f, 1.0f, 1.0f,
+    -100.0f, -100.0f,  100.0f,   0.0f, 1.0f, 1.0f,
+    -100.0f, -100.0f, -100.0f,   0.0f, 1.0f, 1.0f,
+
+    -100.0f,  100.0f, -100.0f,   1.0f, 0.0f, 1.0f,
+    100.0f,  100.0f, -100.0f,   1.0f, 0.0f, 1.0f,
+    100.0f,  100.0f,  100.0f,   1.0f, 0.0f, 1.0f,
+    100.0f,  100.0f,  100.0f,   1.0f, 0.0f, 1.0f,
+    -100.0f,  100.0f,  100.0f,   1.0f, 0.0f, 1.0f,
+    -100.0f,  100.0f, -100.0f,   1.0f, 0.0f, 1.0f,
+
+
+
+
+
+
+
+    -100.0f, -100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
+    100.0f, -100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
+    100.0f,  100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
+    100.0f,  100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
+    -100.0f,  100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
+    -100.0f, -100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
+
+    -100.0f, -100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
+    100.0f, -100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
+    100.0f,  100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
+    100.0f,  100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
+    -100.0f,  100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
+    -100.0f, -100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
+
+    -100.0f,  100.0f,  100.0f,   0.0f, 0.0f, 1.0f,
+    -100.0f,  100.0f, -100.0f,   0.0f, 0.0f, 1.0f,
+    -100.0f, -100.0f, -100.0f,   0.0f, 0.0f, 1.0f,
+    -100.0f, -100.0f, -100.0f,   0.0f, 0.0f, 1.0f,
+    -100.0f, -100.0f,  100.0f,   0.0f, 0.0f, 1.0f,
+    -100.0f,  100.0f,  100.0f,   0.0f, 0.0f, 1.0f,
+
+    100.0f,  100.0f,  100.0f,    1.0f, 1.0f, 0.0f,
+    100.0f,  100.0f, -100.0f,    1.0f, 1.0f, 0.0f,
+    100.0f, -100.0f, -100.0f,    1.0f, 1.0f, 0.0f,
+    100.0f, -100.0f, -100.0f,    1.0f, 1.0f, 0.0f,
+    100.0f, -100.0f,  100.0f,    1.0f, 1.0f, 0.0f,
+    100.0f,  100.0f,  100.0f,    1.0f, 1.0f, 0.0f,
+
+    -100.0f, -100.0f, -100.0f,   0.0f, 1.0f, 1.0f,
+    100.0f, -100.0f, -100.0f,   0.0f, 1.0f, 1.0f,
+    100.0f, -100.0f,  100.0f,   0.0f, 1.0f, 1.0f,
+    100.0f, -100.0f,  100.0f,   0.0f, 1.0f, 1.0f,
+    -100.0f, -100.0f,  100.0f,   0.0f, 1.0f, 1.0f,
+    -100.0f, -100.0f, -100.0f,   0.0f, 1.0f, 1.0f,
+
+    -100.0f,  100.0f, -100.0f,   1.0f, 0.0f, 1.0f,
+    100.0f,  100.0f, -100.0f,   1.0f, 0.0f, 1.0f,
+    100.0f,  100.0f,  100.0f,   1.0f, 0.0f, 1.0f,
+    100.0f,  100.0f,  100.0f,   1.0f, 0.0f, 1.0f,
+    -100.0f,  100.0f,  100.0f,   1.0f, 0.0f, 1.0f,
+    -100.0f,  100.0f, -100.0f,   1.0f, 0.0f, 1.0f,
+
+
+
+   -100.0f, -100.0f, 0.0f,   1.0f, 0.0f, 0.0f,
+    100.0f, -100.0f, 0.0f,   1.0f, 0.0f, 0.0f,
+    100.0f,  100.0f, 0.0f,   1.0f, 0.0f, 0.0f,
+
 };
 
+SmileFaceRenderer::SmileFaceRenderer()
+{
+    m_models = new glm::mat4[m_instances];
+    for (int i = 0; i < m_instances; i ++) {
+        m_models[i] = glm::identity<glm::mat4>();
+    }
+}
+
+SmileFaceRenderer::~SmileFaceRenderer()
+{
+    if (m_models) {
+        delete m_models;
+    }
+}
 
 void SmileFaceRenderer::initialize(QRhiCommandBuffer *cb)
 {
@@ -97,34 +212,30 @@ void SmileFaceRenderer::initialize(QRhiCommandBuffer *cb)
         m_pipeline.reset(m_rhi->newGraphicsPipeline());
 
         m_vectexBuffer.reset(m_rhi->newBuffer(QRhiBuffer::Immutable,
-                                      QRhiBuffer::VertexBuffer,
-                                      sizeof(vertexData)));
+                                              QRhiBuffer::VertexBuffer,
+                                              sizeof(vertexData)));
         m_vectexBuffer->create();
+
+
+        m_modelBuffer.reset(m_rhi->newBuffer(QRhiBuffer::Immutable,
+                                             QRhiBuffer::VertexBuffer,
+                                             m_instances*sizeof(glm::mat4)));
+        m_modelBuffer->create();
+
 
         // uniformbuffer1 的每个block包含两个矩阵，view matrix 和 projection matrix
         // 每个block必须根据硬件进行对齐。“对齐”是为了在绘图的时候可以通过字节偏移量动态的把
         // 缓冲区里的某个block值映射到 Shader 里的 uniform block，而偏移量必须是“对齐字节
         // 数”的整数倍。
-        int block1Size = 64*2;
-        int buffer1Size = 0;
-        m_uniformBuffer1BlockSize = m_rhi->ubufAligned(block1Size);
-        buffer1Size = m_uniformBuffer1BlockSize * m_uniformBuffer1BlockCount;
-        m_uniformBuffer1.reset(m_rhi->newBuffer(QRhiBuffer::Dynamic,
+        int blockSize = 64*2;
+        int bufferSize = 0;
+        m_uniformBufferBlockSize = m_rhi->ubufAligned(blockSize);
+        bufferSize = m_uniformBufferBlockSize * m_uniformBufferBlockCount;
+        m_uniformBuffer.reset(m_rhi->newBuffer(QRhiBuffer::Dynamic,
                                                 QRhiBuffer::UniformBuffer,
-                                                buffer1Size));
-        m_uniformBuffer1->create();
+                                                bufferSize));
+        m_uniformBuffer->create();
 
-        // uniformbuffer2 的每个block包含1个矩阵：model matrix
-        int block2Size = 64;
-        int buffer2Size = 0;
-        m_uniformBuffer2BlockSize = m_rhi->ubufAligned(block2Size);
-        buffer2Size = m_uniformBuffer2BlockSize * m_uniformBuffer2BlockCount;
-        m_uniformBuffer2.reset(m_rhi->newBuffer(QRhiBuffer::Dynamic,
-                                                QRhiBuffer::UniformBuffer,
-                                                buffer2Size));
-        m_uniformBuffer2->create();
-
-        qDebug("uniform buffer2 size: %d", m_uniformBuffer2.get()->size());
 
 
         m_srb.reset(m_rhi->newShaderResourceBindings());
@@ -134,13 +245,8 @@ void SmileFaceRenderer::initialize(QRhiCommandBuffer *cb)
             QRhiShaderResourceBinding::uniformBufferWithDynamicOffset(
                 0,
                 QRhiShaderResourceBinding::VertexStage,
-                m_uniformBuffer1.get(),
-                buffer1Size),
-            QRhiShaderResourceBinding::uniformBufferWithDynamicOffset(
-                1,
-                QRhiShaderResourceBinding::VertexStage,
-                m_uniformBuffer2.get(),
-                buffer2Size),
+                m_uniformBuffer.get(),
+                bufferSize),
         });
         m_srb->create();
 
@@ -154,13 +260,24 @@ void SmileFaceRenderer::initialize(QRhiCommandBuffer *cb)
                 getShader(QLatin1String(":/SmileFaceRHI/shaders/color.frag.qsb"))
             }
         });
+
         QRhiVertexInputLayout inputLayout;
         inputLayout.setBindings({
-            { 6 * sizeof(float) }
+            // PerVertex 表示该顶点属性的索引是以“顶点”进行递增的
+            { 6 * sizeof(float), QRhiVertexInputBinding::PerVertex },
+            // PerInstance 表示该顶点属性的索引是以“实例”进行递增的
+            { sizeof(glm::mat4), QRhiVertexInputBinding::PerInstance },
         });
+
         inputLayout.setAttributes({
             { 0, 0, QRhiVertexInputAttribute::Float3, 0 },
-            { 0, 1, QRhiVertexInputAttribute::Float3, 3 * sizeof(float) }
+            { 0, 1, QRhiVertexInputAttribute::Float3, 3 * sizeof(float) },
+            // binding1
+            // model矩阵由4个 vec4构成，每个vec4代表一列，从location2开始，每个列对应一个location。
+            { 1, 2, QRhiVertexInputAttribute::Float4, 0 },
+            { 1, 3, QRhiVertexInputAttribute::Float4, 4 * sizeof(float) },
+            { 1, 4, QRhiVertexInputAttribute::Float4, 8 * sizeof(float) },
+            { 1, 5, QRhiVertexInputAttribute::Float4, 12 * sizeof(float) },
         });
         m_pipeline->setSampleCount(m_sampleCount);
         m_pipeline->setVertexInputLayout(inputLayout);
@@ -172,17 +289,8 @@ void SmileFaceRenderer::initialize(QRhiCommandBuffer *cb)
 
         QRhiResourceUpdateBatch *resourceUpdates = m_rhi->nextResourceUpdateBatch();
         resourceUpdates->uploadStaticBuffer(m_vectexBuffer.get(), vertexData);
+        resourceUpdates->uploadStaticBuffer(m_modelBuffer.get(), m_models);
 
-        for (int i = 0; i < m_uniformBuffer2BlockCount; i ++) {
-            //float base = QRandomGenerator::global()->generateDouble();
-            m_models[i].setToIdentity();
-            m_models[i].scale(1.0);
-            m_models[i].translate(i * 300, 0, 0);
-            resourceUpdates->updateDynamicBuffer(m_uniformBuffer2.get(),
-                                                 m_uniformBuffer2BlockSize * i,
-                                                 64,
-                                                 m_models[i].constData());
-        }
 
         cb->resourceUpdate(resourceUpdates);
 
@@ -212,7 +320,7 @@ void SmileFaceRenderer::render(QRhiCommandBuffer *cb)
     //                    -200.0f, 10000.0f);
 
     // 使用透视投影，相机的z轴位置决定了场景投影范围的“大小”，相机的目标则决定了投影“中心点”。
-    QVector3D cameraPos(0.0f, 0.0f, 800.0f + m_zoom);
+    QVector3D cameraPos(0.0f, 200.0f, 800.0f + m_zoom);
     QVector3D cameraTarget(m_focus.rx(), m_focus.ry(), 0.0f);
     QVector3D cameraUp(0.0f, 1.0f, 0.0f);
     m_view.setToIdentity();
@@ -222,48 +330,61 @@ void SmileFaceRenderer::render(QRhiCommandBuffer *cb)
 
     cb->setGraphicsPipeline(m_pipeline.get());
     cb->setViewport(QRhiViewport(0, 0, outputSize.width(), outputSize.height()));
+
     const QRhiCommandBuffer::VertexInput vbufBinding(m_vectexBuffer.get(), 0);
     cb->setVertexInput(0, 1, &vbufBinding);
 
+    const QRhiCommandBuffer::VertexInput modelInput(m_modelBuffer.get(), 0);
+    cb->setVertexInput(1, 1, &modelInput);
+
     // 批量更新 uniform 缓冲区
-    QRhiResourceUpdateBatch *resourceUpdates = m_rhi->nextResourceUpdateBatch();
-    resourceUpdates->updateDynamicBuffer(m_uniformBuffer1.get(),
-                                         0,
-                                         64,
-                                         m_view.constData());
-    resourceUpdates->updateDynamicBuffer(m_uniformBuffer1.get(),
-                                         64,
-                                         64,
-                                         m_projection.constData());
-
-    for (int i = 0; i < m_uniformBuffer2BlockCount; i ++) {
-        m_models[i].setToIdentity();
-        m_models[i].scale(1.0);
-        // m_models[i].translate((i % 20) * 300, (i/400) * 300, (i % 400) * 300);
-        m_models[i].translate(0, 0, 0);
-        m_models[i].rotate(m_angle, 1, 1, 0);
-        resourceUpdates->updateDynamicBuffer(m_uniformBuffer2.get(),
-                                             m_uniformBuffer2BlockSize * i,
-                                             64,
-                                             m_models[i].constData());
+    QRhiResourceUpdateBatch *batch = m_rhi->nextResourceUpdateBatch();
+    batch->updateDynamicBuffer(m_uniformBuffer.get(),
+                               0,
+                               64,
+                               m_view.constData());
+    batch->updateDynamicBuffer(m_uniformBuffer.get(),
+                               64,
+                               64,
+                               m_projection.constData());
+    for (int i = 0; i < m_instances; i ++) {
+        QMatrix4x4 model;
+        model.setToIdentity();
+        model.scale(1.0);
+        model.translate(i* 400, 0, 0);
+        model.rotate(m_angle, 0, 1, 0);
+        batch->updateDynamicBuffer(m_modelBuffer.get(),
+                                   i * 64,
+                                   64,
+                                   model.constData());
+        // m_models[i] = glm::translate(glm::mat4(1.0f),
+        //                              glm::vec3(i* 400, 0, 0));
+        // m_models[i] = glm::rotate(m_models[i],
+        //                           qDegreesToRadians(m_angle),
+        //                           glm::vec3(1.0f, 1.0f, 0.0f));
+        // batch->updateDynamicBuffer(m_modelBuffer.get(),
+        //                                      i * sizeof(glm::mat4),
+        //                                      sizeof(glm::mat4),
+        //                                      &m_models[i]);
     }
+
     // 更新
-    cb->resourceUpdate(resourceUpdates);
+    cb->resourceUpdate(batch);
+    cb->setShaderResources(m_srb.get());
 
+    // 绘制实例，由36个顶点构成，顶点属性数据从偏移量0开始，实例id为0。这里需要注意，实例
+    // id是很重要的一个参数，它用于着色器索引 model 矩阵的数据。在本例中 model 矩阵数据
+    // 是以顶点属性数组绑定到着色器，并且被声明为以PerInstance模式进行绑定，意思是每绘制
+    // 完一个实例（而不是每绘制完一个顶点），model顶点属性的索引才会进行一次递增，这样就能
+    // 做到每个绘制的一个实例对应 model 顶点属性数组里的一个 model 矩阵。
+    cb->draw(36, 1, 0, 0);
 
-    QRhiCommandBuffer::DynamicOffset dynOfs[] = { { 1, 49999 * m_uniformBuffer2BlockSize} };
-    cb->setShaderResources(m_srb.get(), 1, dynOfs);
-    cb->draw(36);
-
-    // for (int i = 0; i < m_uniformBuffer2BlockSize; i ++) {
-    //     // 对当前物件渲染指定 uniform 缓冲区偏移
-    //     QRhiCommandBuffer::DynamicOffset dynOfs[] = { { 1, i * m_uniformBuffer2BlockSize } };
-    //     cb->setShaderResources(m_srb.get(), 1, dynOfs);
-    //     cb->draw(36);
-    // }
+    // 绘制其他实例，注意实例id的参数指定。
+    cb->draw(36, 1, 36 * 1, 1);
+    cb->draw(36, 1, 36 * 2, 2);
+    cb->draw(3,  1, 36 * 3, 3);
 
     cb->endPass();
-
 }
 
 void SmileFaceRenderer::synchronize(QQuickRhiItem *rhiItem)
