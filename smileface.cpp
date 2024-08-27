@@ -152,17 +152,50 @@ static float vertexData[] = {
 
 
 
-    -100.0f, -100.0f, 0.0f,   0.0f, 0.0f, 0.0f,
-    100.0f, -100.0f, 0.0f,   0.0f, 0.0f, 0.0f,
-    100.0f,  100.0f, 0.0f,   0.0f, 0.0f, 0.0f,
+    -200.0f, -200.0f, 0.0f,   0.0f, 0.0f, 0.0f,
+    200.0f, -200.0f, 0.0f,   0.0f, 0.0f, 0.0f,
+    200.0f,  200.0f, 0.0f,   0.0f, 0.0f, 0.0f,
 
 };
 
 SmileFaceRenderer::SmileFaceRenderer()
 {
     m_models = new glm::mat4[m_instances];
+    // for (int i = 0; i < m_instances; i ++) {
+    //     m_models[i] = glm::mat4(1.0f);
+    // }
+
     for (int i = 0; i < m_instances; i ++) {
-        m_models[i] = glm::mat4(1.0f);
+
+        if (i == 0) {
+            m_models[i] = glm::translate(glm::mat4(1.0f),
+                                         glm::vec3(400, 0, 0));
+            m_models[i] = glm::scale(m_models[i], glm::vec3(2.0f, 0.5f, 1.0f));
+            m_models[i] = glm::rotate(m_models[i],
+                                      qDegreesToRadians(m_angle),
+                                      glm::vec3(1.0f, 0.0f, 0.0f));
+        }
+        if (i == 1) {
+            m_models[i] = glm::translate(glm::mat4(1.0f),
+                                         glm::vec3(0, 400, 0));
+            m_models[i] = glm::rotate(m_models[i],
+                                      qDegreesToRadians(m_angle),
+                                      glm::vec3(0.0f, 1.0f, 0.0f));
+        }
+        if (i == 2) {
+            m_models[i] = glm::translate(glm::mat4(1.0f),
+                                         glm::vec3(0, 0, 400));
+            m_models[i] = glm::rotate(m_models[i],
+                                      qDegreesToRadians(m_angle),
+                                      glm::vec3(0.0f, 0.0f, 1.0f));
+        }
+        if (i == 3) {
+            m_models[i] = glm::translate(glm::mat4(1.0f),
+                                         glm::vec3(0, 400, 400));
+            m_models[i] = glm::rotate(m_models[i],
+                                      qDegreesToRadians(m_angle),
+                                      glm::vec3(1.0f, 1.0f, 0.0f));
+        }
     }
 }
 
@@ -464,12 +497,10 @@ void SmileFaceRenderer::initialize(QRhiCommandBuffer *cb)
                                               sizeof(vertexData)));
         m_vectexBuffer->create();
 
-
         m_modelBuffer.reset(m_rhi->newBuffer(QRhiBuffer::Immutable,
                                              QRhiBuffer::VertexBuffer,
                                              m_instances*sizeof(glm::mat4)));
         m_modelBuffer->create();
-
 
         // uniformbuffer1 的每个block包含两个矩阵，view matrix 和 projection matrix
         // 每个block必须根据硬件进行对齐。“对齐”是为了在绘图的时候可以通过字节偏移量动态的把
@@ -483,7 +514,6 @@ void SmileFaceRenderer::initialize(QRhiCommandBuffer *cb)
                                                QRhiBuffer::UniformBuffer,
                                                bufferSize));
         m_uniformBuffer->create();
-
 
         m_srb.reset(m_rhi->newShaderResourceBindings());
 
@@ -510,6 +540,12 @@ void SmileFaceRenderer::initialize(QRhiCommandBuffer *cb)
 
         QRhiVertexInputLayout inputLayout;
         inputLayout.setBindings({
+                                 // 顶点着色模式（PerVertex Mode）：顶点属性将为每个顶点更新。这是常见
+                                 // 的模式，用于正常的非实例化渲染，每个顶点属性会随着顶点的变化而变化。
+                                 // 实例化着色模式（PerInstance Mode）：顶点属性将为每个实例更新一次。
+                                 // 这种模式在实例化渲染中很有用，适用于每个实例使用相同的顶点属性，但是
+                                 // 每个实例之间的属性可能不同。
+
                                  // PerVertex 表示该顶点属性的索引是以“顶点”进行递增的
                                  { 6 * sizeof(float), QRhiVertexInputBinding::PerVertex },
                                  // PerInstance 表示该顶点属性的索引是以“实例”进行递增的
@@ -517,6 +553,7 @@ void SmileFaceRenderer::initialize(QRhiCommandBuffer *cb)
                                  });
 
         inputLayout.setAttributes({
+                                   // binding0
                                    { 0, 0, QRhiVertexInputAttribute::Float3, 0 },
                                    { 0, 1, QRhiVertexInputAttribute::Float3, 3 * sizeof(float) },
                                    // binding1
@@ -572,19 +609,24 @@ void SmileFaceRenderer::render(QRhiCommandBuffer *cb)
     m_view.setToIdentity();
     m_view.lookAt(cameraPos, cameraTarget, cameraUp);
 
-    cb->beginPass(renderTarget(), Qt::white, { 1.0f, 0 });
+    QRhiResourceUpdateBatch *batch = m_rhi->nextResourceUpdateBatch();
+    cb->beginPass(renderTarget(), Qt::white, { 1.0f, 0 }, batch);
 
     cb->setGraphicsPipeline(m_pipeline.get());
     cb->setViewport(QRhiViewport(0, 0, outputSize.width(), outputSize.height()));
 
-    const QRhiCommandBuffer::VertexInput vbufBinding(m_vectexBuffer.get(), 0);
-    cb->setVertexInput(0, 1, &vbufBinding);
+    // const QRhiCommandBuffer::VertexInput vbufBinding(m_vectexBuffer.get(), 0);
+    // const QRhiCommandBuffer::VertexInput modelInput(m_modelBuffer.get(), 0);
+    // cb->setVertexInput(0, 1, &vbufBinding);
+    // cb->setVertexInput(1, 1, &modelInput);
 
-    const QRhiCommandBuffer::VertexInput modelInput(m_modelBuffer.get(), 0);
-    cb->setVertexInput(1, 1, &modelInput);
+    const QRhiCommandBuffer::VertexInput vbufBindings[] = {
+        { m_vectexBuffer.get(), 0 },
+        { m_modelBuffer.get(), 0 }
+    };
+    cb->setVertexInput(0, 2, vbufBindings);
 
     // 批量更新 uniform 缓冲区
-    QRhiResourceUpdateBatch *batch = m_rhi->nextResourceUpdateBatch();
     batch->updateDynamicBuffer(m_uniformBuffer.get(),
                                0,
                                64,
@@ -631,7 +673,6 @@ void SmileFaceRenderer::render(QRhiCommandBuffer *cb)
                                   &m_models[i]);
     }
 
-
     // 更新
     cb->resourceUpdate(batch);
     cb->setShaderResources(m_srb.get());
@@ -642,7 +683,7 @@ void SmileFaceRenderer::render(QRhiCommandBuffer *cb)
     // 完一个实例（而不是每绘制完一个顶点），model顶点属性的索引才会进行一次递增，这样就能
     // 做到每个绘制的一个实例对应 model 顶点属性数组里的一个 model 矩阵。
     cb->draw(36, 1, 0, 0);
-    // // 绘制其他实例，注意实例id的参数指定。
+    // // // 绘制其他实例，注意实例id的参数指定。
     cb->draw(36, 1, 36 * 1, 1);
     cb->draw(36, 1, 36 * 2, 2);
     cb->draw(3,  1, 36 * 3, 3);
