@@ -162,7 +162,7 @@ SmileFaceRenderer::SmileFaceRenderer()
 {
     m_models = new glm::mat4[m_instances];
     for (int i = 0; i < m_instances; i ++) {
-        m_models[i] = glm::identity<glm::mat4>();
+        m_models[i] = glm::mat4(1.0f);
     }
 }
 
@@ -237,7 +237,6 @@ void SmileFaceRenderer::initialize(QRhiCommandBuffer *cb)
         m_uniformBuffer->create();
 
 
-
         m_srb.reset(m_rhi->newShaderResourceBindings());
 
         // uniform 缓冲区使用 uniformBufferWithDynamicOffset 函数声明绑定
@@ -287,12 +286,11 @@ void SmileFaceRenderer::initialize(QRhiCommandBuffer *cb)
         m_pipeline->setDepthWrite(true);
         m_pipeline->create();
 
-        QRhiResourceUpdateBatch *resourceUpdates = m_rhi->nextResourceUpdateBatch();
-        resourceUpdates->uploadStaticBuffer(m_vectexBuffer.get(), vertexData);
-        resourceUpdates->uploadStaticBuffer(m_modelBuffer.get(), m_models);
+        QRhiResourceUpdateBatch *batch = m_rhi->nextResourceUpdateBatch();
+        batch->uploadStaticBuffer(m_vectexBuffer.get(), vertexData);
+        batch->uploadStaticBuffer(m_modelBuffer.get(), m_models);
 
-
-        cb->resourceUpdate(resourceUpdates);
+        cb->resourceUpdate(batch);
 
     }
 
@@ -347,16 +345,23 @@ void SmileFaceRenderer::render(QRhiCommandBuffer *cb)
                                64,
                                64,
                                m_projection.constData());
+
     for (int i = 0; i < m_instances; i ++) {
         QMatrix4x4 model;
         model.setToIdentity();
         model.scale(1.0);
         model.translate(i* 400, 0, 0);
         model.rotate(m_angle, 0, 1, 0);
-        batch->updateDynamicBuffer(m_modelBuffer.get(),
-                                   i * 64,
-                                   64,
-                                   model.constData());
+        batch->uploadStaticBuffer(m_modelBuffer.get(),
+                                  i * 64,
+                                  64,
+                                  model.constData());
+
+        // batch->updateDynamicBuffer(m_modelBuffer.get(),
+        //                            i * 64,
+        //                            64,
+        //                            model.constData());
+
         // m_models[i] = glm::translate(glm::mat4(1.0f),
         //                              glm::vec3(i* 400, 0, 0));
         // m_models[i] = glm::rotate(m_models[i],
