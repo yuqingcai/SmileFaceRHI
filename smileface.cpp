@@ -11,17 +11,23 @@ static QShader getShader(const QString &name)
 }
 
 
-static float vertexData[] = {
-   -100.0f, -100.0f, -100.0f,  1.0f, 0.0f, 0.0f,
-    100.0f, -100.0f, -100.0f,  1.0f, 0.0f, 0.0f,
-    100.0f,  100.0f, -100.0f,  1.0f, 0.0f, 0.0f,
-    100.0f,  100.0f, -100.0f,  1.0f, 0.0f, 0.0f,
-   -100.0f,  100.0f, -100.0f,  1.0f, 0.0f, 0.0f,
-   -100.0f, -100.0f, -100.0f,  1.0f, 0.0f, 0.0f,
+float vertexData[] = {
 
-   -200.0f, -200.0f, 0.0f,   0.0f, 0.0f, 0.0f,
-    200.0f, -200.0f, 0.0f,   0.0f, 0.0f, 0.0f,
-    200.0f,  200.0f, 0.0f,   0.0f, 0.0f, 0.0f,
+    //---- Position------   -----Color-----
+    // X       Y       Z    R     G     B
+
+    // Rectangle Vertices Attributes
+   -100.0f, -100.0f, 0.0f,  1.0f, 0.0f, 0.0f,
+    100.0f, -100.0f, 0.0f,  1.0f, 0.0f, 0.0f,
+    100.0f,  100.0f, 0.0f,  1.0f, 0.0f, 0.0f,
+    100.0f,  100.0f, 0.0f,  1.0f, 0.0f, 0.0f,
+   -100.0f,  100.0f, 0.0f,  1.0f, 0.0f, 0.0f,
+   -100.0f, -100.0f, 0.0f,  1.0f, 0.0f, 0.0f,
+
+    // Triangle Vertices Attributes
+   -100.0f, -100.0f, 0.1f,  0.0f, 0.0f, 0.0f,
+    100.0f, -100.0f, 0.1f,  0.0f, 0.0f, 0.0f,
+    0.0f,    100.0f, 0.1f,  0.0f, 0.0f, 0.0f,
 };
 
 // static float vertexData[] = {
@@ -67,10 +73,6 @@ static float vertexData[] = {
 //     100.0f,  100.0f,  100.0f,   1.0f, 0.0f, 1.0f,
 //     -100.0f,  100.0f,  100.0f,   1.0f, 0.0f, 1.0f,
 //     -100.0f,  100.0f, -100.0f,   1.0f, 0.0f, 1.0f,
-
-
-
-
 
 
 
@@ -585,7 +587,7 @@ void SmileFaceRenderer::render(QRhiCommandBuffer *cb)
     //                    -200.0f, 10000.0f);
 
     // 使用透视投影，相机的z轴位置决定了场景投影范围的“大小”，相机的目标则决定了投影“中心点”。
-    QVector3D cameraPos(0.0f, 200.0f, 800.0f + m_zoom);
+    QVector3D cameraPos(0.0f, 0.0f, 800.0f + m_zoom);
     QVector3D cameraTarget(m_focus.rx(), m_focus.ry(), 0.0f);
     QVector3D cameraUp(0.0f, 1.0f, 0.0f);
     m_view.setToIdentity();
@@ -619,26 +621,22 @@ void SmileFaceRenderer::render(QRhiCommandBuffer *cb)
                                m_projection.constData());
 
     for (int i = 0; i < m_instances; i ++) {
+        QMatrix4x4 model;
+        model.setToIdentity();
 
         if (i == 0) {
-            m_models[i] = glm::translate(glm::mat4(1.0f),
-                                         glm::vec3(400, 0, 0));
-            m_models[i] = glm::rotate(m_models[i],
-                                      qDegreesToRadians(m_angle),
-                                      glm::vec3(1.0f, 0.0f, 0.0f));
+            model.translate(400, 0, 0);
+            model.rotate(m_angle, 1.0f, 0.0f, 0.0f);
         }
 
         if (i == 1) {
-            m_models[i] = glm::translate(glm::mat4(1.0f),
-                                         glm::vec3(0, 0, 0));
-            m_models[i] = glm::rotate(m_models[i],
-                                      qDegreesToRadians(m_angle),
-                                      glm::vec3(0.0f, 1.0f, 0.0f));
+            model.translate(0, 400, 0);
+            model.rotate(m_angle, 1.0f, 0.0f, 0.0f);
         }
         batch->uploadStaticBuffer(m_modelBuffer.get(),
                                   i * sizeof(float) * 16,
                                   sizeof(float) * 16,
-                                  &m_models[i]);
+                                  model.constData());
     }
 
     // 更新
@@ -646,7 +644,7 @@ void SmileFaceRenderer::render(QRhiCommandBuffer *cb)
     cb->setShaderResources(m_srb.get());
 
     cb->draw(6, 1, 0, 0);
-    cb->draw(3, 1, 6 * 1, 1);
+    cb->draw(3, 1, 6, 1);
 
     // 绘制实例，由36个顶点构成，顶点属性数据从偏移量0开始，实例id为0。这里需要注意，实例
     // id是很重要的一个参数，它用于着色器索引 model 矩阵的数据。在本例中 model 矩阵数据
