@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import Qt.labs.platform
 import SmileFaceRHI
 
 ApplicationWindow {
