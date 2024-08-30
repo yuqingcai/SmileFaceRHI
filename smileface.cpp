@@ -75,7 +75,6 @@ float vertexData2[] = {
     100.0f, -100.0f,  -100.0f, 0.0f, 1.0f, 0.0f,
     0.0f,    100.0f,    0.0f,  0.0f, 1.0f, 0.0f,
 
-
     100.0f, -100.0f,  -100.0f, 0.0f, 0.0f, 1.0f,
    -100.0f, -100.0f, -100.0f,  0.0f, 0.0f, 1.0f,
     0.0f,    100.0f,    0.0f,  0.0f, 0.0f, 1.0f,
@@ -585,7 +584,6 @@ void SmileFaceRenderer::render(QRhiCommandBuffer *cb)
                                   &model);
     }
 
-
     // // 更新
     cb->resourceUpdate(batch);
     cb->setShaderResources(m_srb.get());
@@ -607,11 +605,9 @@ void SmileFaceRenderer::render(QRhiCommandBuffer *cb)
         { m_modelBuffer2.get(), 0 }
     };
     cb->setVertexInput(0, 2, vbufBindings2);
-
     cb->draw(18, m_instances2);
 
     cb->endPass();
-
 }
 
 void SmileFaceRenderer::synchronize(QQuickRhiItem *rhiItem)
