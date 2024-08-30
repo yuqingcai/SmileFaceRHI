@@ -17,19 +17,19 @@ float vertexData1[] = {
     // X       Y       Z    R     G     B
 
     // Rectangle Vertices Attributes
-    -100.0f, -100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
+   -100.0f, -100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
     100.0f, -100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
     100.0f,  100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
     100.0f,  100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
-    -100.0f,  100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
-    -100.0f, -100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
+   -100.0f,  100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
+   -100.0f, -100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
 
-    -100.0f, -100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
+   -100.0f, -100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
     100.0f, -100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
     100.0f,  100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
     100.0f,  100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
-    -100.0f,  100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
-    -100.0f, -100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
+   -100.0f,  100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
+   -100.0f, -100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
 
     -100.0f,  100.0f,  100.0f,   0.0f, 0.0f, 1.0f,
     -100.0f,  100.0f, -100.0f,   0.0f, 0.0f, 1.0f,
@@ -67,9 +67,32 @@ float vertexData2[] = {
     // X       Y       Z    R     G     B
 
     // Triangle Vertices Attributes
-   -100.0f, -100.0f,  10.0f,  0.0f, 0.0f, 0.0f,
-    100.0f, -100.0f,  10.0f,  0.0f, 0.0f, 0.0f,
-    0.0f,    100.0f,  10.0f,  0.0f, 0.0f, 0.0f,
+   -100.0f, -100.0f,  100.0f,  1.0f, 0.0f, 0.0f,
+    100.0f, -100.0f,  100.0f,  1.0f, 0.0f, 0.0f,
+    0.0f,    100.0f,    0.0f,  1.0f, 0.0f, 0.0f,
+
+    100.0f, -100.0f,  100.0f,  0.0f, 1.0f, 0.0f,
+    100.0f, -100.0f,  -100.0f, 0.0f, 1.0f, 0.0f,
+    0.0f,    100.0f,    0.0f,  0.0f, 1.0f, 0.0f,
+
+
+    100.0f, -100.0f,  -100.0f, 0.0f, 0.0f, 1.0f,
+   -100.0f, -100.0f, -100.0f,  0.0f, 0.0f, 1.0f,
+    0.0f,    100.0f,    0.0f,  0.0f, 0.0f, 1.0f,
+
+   -100.0f, -100.0f, -100.0f,  1.0f, 1.0f, 0.0f,
+   -100.0f, -100.0f,  100.0f,  1.0f, 1.0f, 0.0f,
+    0.0f,    100.0f,    0.0f,  1.0f, 1.0f, 0.0f,
+
+   -100.0f, -100.0f, -100.0f,  1.0f, 0.0f, 1.0f,
+    100.0f, -100.0f, -100.0f,  1.0f, 0.0f, 1.0f,
+    100.0f, -100.0f,  100.0f,  1.0f, 0.0f, 1.0f,
+
+    -100.0f, -100.0f, -100.0f, 0.0f, 1.0f, 1.0f,
+     100.0f, -100.0f,  100.0f, 0.0f, 1.0f, 1.0f,
+    -100.0f, -100.0f,  100.0f, 0.0f, 1.0f, 1.0f,
+
+
 };
 
 
@@ -78,8 +101,8 @@ SmileFaceRenderer::SmileFaceRenderer()
     m_models1 = new glm::mat4[m_instances1];
     for (int i = 0; i < m_instances1; i ++) {
         double ns = QRandomGenerator::global()->bounded(1, 2) * 0.5;
-        double ntX = QRandomGenerator::global()->bounded(-8000, 8000);
-        double ntY = QRandomGenerator::global()->bounded(-8000, 8000);
+        double ntX = QRandomGenerator::global()->bounded(-16000, 16000);
+        double ntY = QRandomGenerator::global()->bounded(-16000, 16000);
         m_models1[i] = glm::mat4(1.0f);
         m_models1[i] = glm::scale(m_models1[i], glm::vec3(ns, ns, ns));
         m_models1[i] = glm::translate(m_models1[i],
@@ -89,8 +112,8 @@ SmileFaceRenderer::SmileFaceRenderer()
     m_models2 = new glm::mat4[m_instances2];
     for (int i = 0; i < m_instances2; i ++) {
         double ns = QRandomGenerator::global()->bounded(1, 2) * 0.5;
-        double ntX = QRandomGenerator::global()->bounded(-8000, 8000);
-        double ntY = QRandomGenerator::global()->bounded(-8000, 8000);
+        double ntX = QRandomGenerator::global()->bounded(-16000, 16000);
+        double ntY = QRandomGenerator::global()->bounded(-16000, 16000);
         m_models2[i] = glm::mat4(1.0f);
         m_models2[i] = glm::scale(m_models2[i], glm::vec3(ns, ns, ns));
         m_models2[i] = glm::translate(m_models2[i],
@@ -555,7 +578,7 @@ void SmileFaceRenderer::render(QRhiCommandBuffer *cb)
     for (int i = 0; i < m_instances2; i ++) {
         glm::mat4 model = glm::rotate(m_models2[i],
                                       qDegreesToRadians(m_angle),
-                                      glm::vec3(0.0f, 1.0f, 0.0f));
+                                      glm::vec3(0.0f, 1.0f, 1.0f));
         batch->uploadStaticBuffer(m_modelBuffer2.get(),
                                   i * sizeof(glm::mat4),
                                   sizeof(glm::mat4),
@@ -585,7 +608,7 @@ void SmileFaceRenderer::render(QRhiCommandBuffer *cb)
     };
     cb->setVertexInput(0, 2, vbufBindings2);
 
-    cb->draw(3, m_instances2);
+    cb->draw(18, m_instances2);
 
     cb->endPass();
 
