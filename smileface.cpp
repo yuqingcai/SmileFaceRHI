@@ -23,12 +23,6 @@ float vertexData1[] = {
     100.0f,  100.0f, 0.0f,  1.0f, 0.0f, 0.0f,
    -100.0f,  100.0f, 0.0f,  1.0f, 0.0f, 0.0f,
    -100.0f, -100.0f, 0.0f,  1.0f, 0.0f, 0.0f,
-
-    // Triangle Vertices Attributes
-   -100.0f, -100.0f, 0.1f,  0.0f, 0.0f, 0.0f,
-    100.0f, -100.0f, 0.1f,  0.0f, 0.0f, 0.0f,
-    0.0f,    100.0f, 0.1f,  0.0f, 0.0f, 0.0f,
-
 };
 
 
@@ -38,166 +32,34 @@ float vertexData2[] = {
     // X       Y       Z    R     G     B
 
     // Triangle Vertices Attributes
-    -100.0f, -100.0f, 0.1f,  0.0f, 0.0f, 0.0f,
-    100.0f, -100.0f, 0.1f,  0.0f, 0.0f, 0.0f,
-    0.0f,    100.0f, 0.1f,  0.0f, 0.0f, 0.0f,
+   -100.0f, -100.0f,  10.0f,  0.0f, 0.0f, 0.0f,
+    100.0f, -100.0f,  10.0f,  0.0f, 0.0f, 0.0f,
+    0.0f,    100.0f,  10.0f,  0.0f, 0.0f, 0.0f,
 };
-
-// static float vertexData[] = {
-//     // positions                // colors
-//     -100.0f, -100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
-//     100.0f, -100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
-//     100.0f,  100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
-//     100.0f,  100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
-//     -100.0f,  100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
-//     -100.0f, -100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
-
-//     -100.0f, -100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
-//     100.0f, -100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
-//     100.0f,  100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
-//     100.0f,  100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
-//     -100.0f,  100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
-//     -100.0f, -100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
-
-//     -100.0f,  100.0f,  100.0f,   0.0f, 0.0f, 1.0f,
-//     -100.0f,  100.0f, -100.0f,   0.0f, 0.0f, 1.0f,
-//     -100.0f, -100.0f, -100.0f,   0.0f, 0.0f, 1.0f,
-//     -100.0f, -100.0f, -100.0f,   0.0f, 0.0f, 1.0f,
-//     -100.0f, -100.0f,  100.0f,   0.0f, 0.0f, 1.0f,
-//     -100.0f,  100.0f,  100.0f,   0.0f, 0.0f, 1.0f,
-
-//     100.0f,  100.0f,  100.0f,    1.0f, 1.0f, 0.0f,
-//     100.0f,  100.0f, -100.0f,    1.0f, 1.0f, 0.0f,
-//     100.0f, -100.0f, -100.0f,    1.0f, 1.0f, 0.0f,
-//     100.0f, -100.0f, -100.0f,    1.0f, 1.0f, 0.0f,
-//     100.0f, -100.0f,  100.0f,    1.0f, 1.0f, 0.0f,
-//     100.0f,  100.0f,  100.0f,    1.0f, 1.0f, 0.0f,
-
-//     -100.0f, -100.0f, -100.0f,   0.0f, 1.0f, 1.0f,
-//     100.0f, -100.0f, -100.0f,   0.0f, 1.0f, 1.0f,
-//     100.0f, -100.0f,  100.0f,   0.0f, 1.0f, 1.0f,
-//     100.0f, -100.0f,  100.0f,   0.0f, 1.0f, 1.0f,
-//     -100.0f, -100.0f,  100.0f,   0.0f, 1.0f, 1.0f,
-//     -100.0f, -100.0f, -100.0f,   0.0f, 1.0f, 1.0f,
-
-//     -100.0f,  100.0f, -100.0f,   1.0f, 0.0f, 1.0f,
-//     100.0f,  100.0f, -100.0f,   1.0f, 0.0f, 1.0f,
-//     100.0f,  100.0f,  100.0f,   1.0f, 0.0f, 1.0f,
-//     100.0f,  100.0f,  100.0f,   1.0f, 0.0f, 1.0f,
-//     -100.0f,  100.0f,  100.0f,   1.0f, 0.0f, 1.0f,
-//     -100.0f,  100.0f, -100.0f,   1.0f, 0.0f, 1.0f,
-
-
-
-//     -100.0f, -100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
-//     100.0f, -100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
-//     100.0f,  100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
-//     100.0f,  100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
-//     -100.0f,  100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
-//     -100.0f, -100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
-
-//     -100.0f, -100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
-//     100.0f, -100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
-//     100.0f,  100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
-//     100.0f,  100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
-//     -100.0f,  100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
-//     -100.0f, -100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
-
-//     -100.0f,  100.0f,  100.0f,   0.0f, 0.0f, 1.0f,
-//     -100.0f,  100.0f, -100.0f,   0.0f, 0.0f, 1.0f,
-//     -100.0f, -100.0f, -100.0f,   0.0f, 0.0f, 1.0f,
-//     -100.0f, -100.0f, -100.0f,   0.0f, 0.0f, 1.0f,
-//     -100.0f, -100.0f,  100.0f,   0.0f, 0.0f, 1.0f,
-//     -100.0f,  100.0f,  100.0f,   0.0f, 0.0f, 1.0f,
-
-//     100.0f,  100.0f,  100.0f,    1.0f, 1.0f, 0.0f,
-//     100.0f,  100.0f, -100.0f,    1.0f, 1.0f, 0.0f,
-//     100.0f, -100.0f, -100.0f,    1.0f, 1.0f, 0.0f,
-//     100.0f, -100.0f, -100.0f,    1.0f, 1.0f, 0.0f,
-//     100.0f, -100.0f,  100.0f,    1.0f, 1.0f, 0.0f,
-//     100.0f,  100.0f,  100.0f,    1.0f, 1.0f, 0.0f,
-
-//     -100.0f, -100.0f, -100.0f,   0.0f, 1.0f, 1.0f,
-//     100.0f, -100.0f, -100.0f,   0.0f, 1.0f, 1.0f,
-//     100.0f, -100.0f,  100.0f,   0.0f, 1.0f, 1.0f,
-//     100.0f, -100.0f,  100.0f,   0.0f, 1.0f, 1.0f,
-//     -100.0f, -100.0f,  100.0f,   0.0f, 1.0f, 1.0f,
-//     -100.0f, -100.0f, -100.0f,   0.0f, 1.0f, 1.0f,
-
-//     -100.0f,  100.0f, -100.0f,   1.0f, 0.0f, 1.0f,
-//     100.0f,  100.0f, -100.0f,   1.0f, 0.0f, 1.0f,
-//     100.0f,  100.0f,  100.0f,   1.0f, 0.0f, 1.0f,
-//     100.0f,  100.0f,  100.0f,   1.0f, 0.0f, 1.0f,
-//     -100.0f,  100.0f,  100.0f,   1.0f, 0.0f, 1.0f,
-//     -100.0f,  100.0f, -100.0f,   1.0f, 0.0f, 1.0f,
-
-
-
-
-
-
-
-//     -100.0f, -100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
-//     100.0f, -100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
-//     100.0f,  100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
-//     100.0f,  100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
-//     -100.0f,  100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
-//     -100.0f, -100.0f, -100.0f,   1.0f, 0.0f, 0.0f,
-
-//     -100.0f, -100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
-//     100.0f, -100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
-//     100.0f,  100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
-//     100.0f,  100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
-//     -100.0f,  100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
-//     -100.0f, -100.0f,  100.0f,   0.0f, 1.0f, 0.0f,
-
-//     -100.0f,  100.0f,  100.0f,   0.0f, 0.0f, 1.0f,
-//     -100.0f,  100.0f, -100.0f,   0.0f, 0.0f, 1.0f,
-//     -100.0f, -100.0f, -100.0f,   0.0f, 0.0f, 1.0f,
-//     -100.0f, -100.0f, -100.0f,   0.0f, 0.0f, 1.0f,
-//     -100.0f, -100.0f,  100.0f,   0.0f, 0.0f, 1.0f,
-//     -100.0f,  100.0f,  100.0f,   0.0f, 0.0f, 1.0f,
-
-//     100.0f,  100.0f,  100.0f,    1.0f, 1.0f, 0.0f,
-//     100.0f,  100.0f, -100.0f,    1.0f, 1.0f, 0.0f,
-//     100.0f, -100.0f, -100.0f,    1.0f, 1.0f, 0.0f,
-//     100.0f, -100.0f, -100.0f,    1.0f, 1.0f, 0.0f,
-//     100.0f, -100.0f,  100.0f,    1.0f, 1.0f, 0.0f,
-//     100.0f,  100.0f,  100.0f,    1.0f, 1.0f, 0.0f,
-
-//     -100.0f, -100.0f, -100.0f,   0.0f, 1.0f, 1.0f,
-//     100.0f, -100.0f, -100.0f,   0.0f, 1.0f, 1.0f,
-//     100.0f, -100.0f,  100.0f,   0.0f, 1.0f, 1.0f,
-//     100.0f, -100.0f,  100.0f,   0.0f, 1.0f, 1.0f,
-//     -100.0f, -100.0f,  100.0f,   0.0f, 1.0f, 1.0f,
-//     -100.0f, -100.0f, -100.0f,   0.0f, 1.0f, 1.0f,
-
-//     -100.0f,  100.0f, -100.0f,   1.0f, 0.0f, 1.0f,
-//     100.0f,  100.0f, -100.0f,   1.0f, 0.0f, 1.0f,
-//     100.0f,  100.0f,  100.0f,   1.0f, 0.0f, 1.0f,
-//     100.0f,  100.0f,  100.0f,   1.0f, 0.0f, 1.0f,
-//     -100.0f,  100.0f,  100.0f,   1.0f, 0.0f, 1.0f,
-//     -100.0f,  100.0f, -100.0f,   1.0f, 0.0f, 1.0f,
-
-
-
-//     -200.0f, -200.0f, 0.0f,   0.0f, 0.0f, 0.0f,
-//     200.0f, -200.0f, 0.0f,   0.0f, 0.0f, 0.0f,
-//     200.0f,  200.0f, 0.0f,   0.0f, 0.0f, 0.0f,
-
-// };
 
 
 SmileFaceRenderer::SmileFaceRenderer()
 {
-    m_models1 = new glm::mat4[m_instances];
-    for (int i = 0; i < m_instances; i ++) {
+    m_models1 = new glm::mat4[m_instances1];
+    for (int i = 0; i < m_instances1; i ++) {
+        double ns = QRandomGenerator::global()->bounded(1, 2) * 0.5;
+        double ntX = QRandomGenerator::global()->bounded(-8000, 8000);
+        double ntY = QRandomGenerator::global()->bounded(-8000, 8000);
         m_models1[i] = glm::mat4(1.0f);
+        m_models1[i] = glm::scale(m_models1[i], glm::vec3(ns, ns, ns));
+        m_models1[i] = glm::translate(m_models1[i],
+                                      glm::vec3(ntX, ntY, 0));
     }
 
-    m_models2 = new glm::mat4[m_instances];
-    for (int i = 0; i < m_instances; i ++) {
+    m_models2 = new glm::mat4[m_instances2];
+    for (int i = 0; i < m_instances2; i ++) {
+        double ns = QRandomGenerator::global()->bounded(1, 2) * 0.5;
+        double ntX = QRandomGenerator::global()->bounded(-8000, 8000);
+        double ntY = QRandomGenerator::global()->bounded(-8000, 8000);
         m_models2[i] = glm::mat4(1.0f);
+        m_models2[i] = glm::scale(m_models2[i], glm::vec3(ns, ns, ns));
+        m_models2[i] = glm::translate(m_models2[i],
+                                      glm::vec3(ntX, ntY, 0));
     }
 }
 
@@ -510,12 +372,12 @@ void SmileFaceRenderer::initialize(QRhiCommandBuffer *cb)
 
         m_modelBuffer1.reset(m_rhi->newBuffer(QRhiBuffer::Immutable,
                                              QRhiBuffer::VertexBuffer,
-                                             m_instances*sizeof(glm::mat4)));
+                                             m_instances1*sizeof(glm::mat4)));
         m_modelBuffer1->create();
 
         m_modelBuffer2.reset(m_rhi->newBuffer(QRhiBuffer::Immutable,
                                               QRhiBuffer::VertexBuffer,
-                                              m_instances*sizeof(glm::mat4)));
+                                              m_instances2*sizeof(glm::mat4)));
         m_modelBuffer2->create();
 
         // uniformbuffer1 的每个block包含两个矩阵，view matrix 和 projection matrix
@@ -644,45 +506,25 @@ void SmileFaceRenderer::render(QRhiCommandBuffer *cb)
                                64,
                                m_projection.constData());
 
+    for (int i = 0; i < m_instances1; i ++) {
+        glm::mat4 model = glm::rotate(m_models1[i],
+                                      qDegreesToRadians(m_angle),
+                                      glm::vec3(1.0f, 0.0f, 0.0f));
 
-
-    for (int i = 0; i < m_instances; i ++) {
-        QMatrix4x4 model;
-        model.setToIdentity();
-
-        if (i == 0) {
-            model.translate(400, 0, 0);
-            model.rotate(m_angle, 1.0f, 0.0f, 0.0f);
-        }
-
-        if (i == 1) {
-            model.translate(0, 400, 0);
-            model.rotate(m_angle, 1.0f, 0.0f, 0.0f);
-        }
         batch->uploadStaticBuffer(m_modelBuffer1.get(),
-                                  i * sizeof(float) * 16,
-                                  sizeof(float) * 16,
-                                  model.constData());
+                                  i * sizeof(glm::mat4),
+                                  sizeof(glm::mat4),
+                                  &model);
     }
 
-
-    for (int i = 0; i < m_instances; i ++) {
-        QMatrix4x4 model;
-        model.setToIdentity();
-
-        if (i == 0) {
-            model.translate(-400, 0, 0);
-            model.rotate(m_angle, 1.0f, 0.0f, 0.0f);
-        }
-
-        if (i == 1) {
-            model.translate(0, -400, 0);
-            model.rotate(m_angle, 1.0f, 0.0f, 0.0f);
-        }
+    for (int i = 0; i < m_instances2; i ++) {
+        glm::mat4 model = glm::rotate(m_models2[i],
+                                      qDegreesToRadians(m_angle),
+                                      glm::vec3(0.0f, 1.0f, 0.0f));
         batch->uploadStaticBuffer(m_modelBuffer2.get(),
-                                  i * sizeof(float) * 16,
-                                  sizeof(float) * 16,
-                                  model.constData());
+                                  i * sizeof(glm::mat4),
+                                  sizeof(glm::mat4),
+                                  &model);
     }
 
 
@@ -695,7 +537,7 @@ void SmileFaceRenderer::render(QRhiCommandBuffer *cb)
         { m_modelBuffer1.get(), 0 }
     };
     cb->setVertexInput(0, 2, vbufBindings1);
-    cb->draw(6, 2);
+    cb->draw(6, m_instances1);
 
     const QRhiCommandBuffer::VertexInput vbufBindings2[] = {
         { m_vectexBuffer2.get(), 0 },
@@ -703,7 +545,7 @@ void SmileFaceRenderer::render(QRhiCommandBuffer *cb)
     };
     cb->setVertexInput(0, 2, vbufBindings2);
 
-    cb->draw(3, 2);
+    cb->draw(3, m_instances2);
 
     // 绘制实例，由36个顶点构成，顶点属性数据从偏移量0开始，实例id为0。这里需要注意，实例
     // id是很重要的一个参数，它用于着色器索引 model 矩阵的数据。在本例中 model 矩阵数据
@@ -717,6 +559,7 @@ void SmileFaceRenderer::render(QRhiCommandBuffer *cb)
     // cb->draw(3,  1, 36 * 3, 3);
 
     cb->endPass();
+
 }
 
 void SmileFaceRenderer::synchronize(QQuickRhiItem *rhiItem)
