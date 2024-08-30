@@ -22,8 +22,10 @@ private:
     int m_sampleCount = 1;
     QRhiTexture::Format m_textureFormat = QRhiTexture::RGBA8;
     std::unique_ptr<QRhiGraphicsPipeline> m_pipeline;
-    std::unique_ptr<QRhiBuffer> m_vectexBuffer;
-    std::unique_ptr<QRhiBuffer> m_modelBuffer;
+    std::unique_ptr<QRhiBuffer> m_vectexBuffer1;
+    std::unique_ptr<QRhiBuffer> m_modelBuffer1;
+    std::unique_ptr<QRhiBuffer> m_vectexBuffer2;
+    std::unique_ptr<QRhiBuffer> m_modelBuffer2;
 
     std::unique_ptr<QRhiBuffer> m_uniformBuffer;
     std::unique_ptr<QRhiShaderResourceBindings> m_srb;
@@ -42,7 +44,8 @@ private:
     int m_uniformBufferBlockCount = 1;
 
     int m_instances = 4;
-    glm::mat4* m_models;
+    glm::mat4* m_models1;
+    glm::mat4* m_models2;
 };
 
 class SmileFace: public QQuickRhiItem

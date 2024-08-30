@@ -11,7 +11,7 @@ static QShader getShader(const QString &name)
 }
 
 
-float vertexData[] = {
+float vertexData1[] = {
 
     //---- Position------   -----Color-----
     // X       Y       Z    R     G     B
@@ -26,6 +26,18 @@ float vertexData[] = {
 
     // Triangle Vertices Attributes
    -100.0f, -100.0f, 0.1f,  0.0f, 0.0f, 0.0f,
+    100.0f, -100.0f, 0.1f,  0.0f, 0.0f, 0.0f,
+    0.0f,    100.0f, 0.1f,  0.0f, 0.0f, 0.0f,
+};
+
+
+float vertexData2[] = {
+
+    //---- Position------   -----Color-----
+    // X       Y       Z    R     G     B
+
+    // Triangle Vertices Attributes
+    -100.0f, -100.0f, 0.1f,  0.0f, 0.0f, 0.0f,
     100.0f, -100.0f, 0.1f,  0.0f, 0.0f, 0.0f,
     0.0f,    100.0f, 0.1f,  0.0f, 0.0f, 0.0f,
 };
@@ -177,16 +189,24 @@ float vertexData[] = {
 
 SmileFaceRenderer::SmileFaceRenderer()
 {
-    m_models = new glm::mat4[m_instances];
+    m_models1 = new glm::mat4[m_instances];
     for (int i = 0; i < m_instances; i ++) {
-        m_models[i] = glm::mat4(1.0f);
+        m_models1[i] = glm::mat4(1.0f);
+    }
+
+    m_models2 = new glm::mat4[m_instances];
+    for (int i = 0; i < m_instances; i ++) {
+        m_models2[i] = glm::mat4(1.0f);
     }
 }
 
 SmileFaceRenderer::~SmileFaceRenderer()
 {
-    if (m_models) {
-        delete m_models;
+    if (m_models1) {
+        delete m_models1;
+    }
+    if (m_models2) {
+        delete m_models2;
     }
 }
 
@@ -476,15 +496,26 @@ void SmileFaceRenderer::initialize(QRhiCommandBuffer *cb)
     if (!m_pipeline) {
         m_pipeline.reset(m_rhi->newGraphicsPipeline());
 
-        m_vectexBuffer.reset(m_rhi->newBuffer(QRhiBuffer::Immutable,
+        m_vectexBuffer1.reset(m_rhi->newBuffer(QRhiBuffer::Immutable,
                                               QRhiBuffer::VertexBuffer,
-                                              sizeof(vertexData)));
-        m_vectexBuffer->create();
+                                              sizeof(vertexData1)));
+        m_vectexBuffer1->create();
 
-        m_modelBuffer.reset(m_rhi->newBuffer(QRhiBuffer::Immutable,
+
+        m_vectexBuffer2.reset(m_rhi->newBuffer(QRhiBuffer::Immutable,
+                                               QRhiBuffer::VertexBuffer,
+                                               sizeof(vertexData2)));
+        m_vectexBuffer2->create();
+
+        m_modelBuffer1.reset(m_rhi->newBuffer(QRhiBuffer::Immutable,
                                              QRhiBuffer::VertexBuffer,
                                              m_instances*sizeof(glm::mat4)));
-        m_modelBuffer->create();
+        m_modelBuffer1->create();
+
+        m_modelBuffer2.reset(m_rhi->newBuffer(QRhiBuffer::Immutable,
+                                              QRhiBuffer::VertexBuffer,
+                                              m_instances*sizeof(glm::mat4)));
+        m_modelBuffer2->create();
 
         // uniformbuffer1 的每个block包含两个矩阵，view matrix 和 projection matrix
         // 每个block必须根据硬件进行对齐。“对齐”是为了在绘图的时候可以通过字节偏移量动态的把
@@ -547,8 +578,9 @@ void SmileFaceRenderer::initialize(QRhiCommandBuffer *cb)
                                    { 1, 4, QRhiVertexInputAttribute::Float4, 8 * sizeof(float) },
                                    { 1, 5, QRhiVertexInputAttribute::Float4, 12 * sizeof(float) },
                                    });
-        m_pipeline->setSampleCount(m_sampleCount);
         m_pipeline->setVertexInputLayout(inputLayout);
+
+        m_pipeline->setSampleCount(m_sampleCount);
         m_pipeline->setShaderResourceBindings(m_srb.get());
         m_pipeline->setRenderPassDescriptor(renderTarget()->renderPassDescriptor());
         m_pipeline->setDepthTest(true);
@@ -556,8 +588,10 @@ void SmileFaceRenderer::initialize(QRhiCommandBuffer *cb)
         m_pipeline->create();
 
         QRhiResourceUpdateBatch *batch = m_rhi->nextResourceUpdateBatch();
-        batch->uploadStaticBuffer(m_vectexBuffer.get(), vertexData);
-        batch->uploadStaticBuffer(m_modelBuffer.get(), m_models);
+        batch->uploadStaticBuffer(m_vectexBuffer1.get(), vertexData1);
+        batch->uploadStaticBuffer(m_vectexBuffer2.get(), vertexData2);
+        batch->uploadStaticBuffer(m_modelBuffer1.get(), m_models1);
+        batch->uploadStaticBuffer(m_modelBuffer2.get(), m_models2);
 
         cb->resourceUpdate(batch);
 
@@ -599,17 +633,6 @@ void SmileFaceRenderer::render(QRhiCommandBuffer *cb)
     cb->setGraphicsPipeline(m_pipeline.get());
     cb->setViewport(QRhiViewport(0, 0, outputSize.width(), outputSize.height()));
 
-    // const QRhiCommandBuffer::VertexInput vbufBinding(m_vectexBuffer.get(), 0);
-    // const QRhiCommandBuffer::VertexInput modelInput(m_modelBuffer.get(), 0);
-    // cb->setVertexInput(0, 1, &vbufBinding);
-    // cb->setVertexInput(1, 1, &modelInput);
-
-    const QRhiCommandBuffer::VertexInput vbufBindings[] = {
-        { m_vectexBuffer.get(), 0 },
-        { m_modelBuffer.get(), 0 }
-    };
-    cb->setVertexInput(0, 2, vbufBindings);
-
     // 批量更新 uniform 缓冲区
     batch->updateDynamicBuffer(m_uniformBuffer.get(),
                                0,
@@ -619,6 +642,8 @@ void SmileFaceRenderer::render(QRhiCommandBuffer *cb)
                                64,
                                64,
                                m_projection.constData());
+
+
 
     for (int i = 0; i < m_instances; i ++) {
         QMatrix4x4 model;
@@ -633,18 +658,51 @@ void SmileFaceRenderer::render(QRhiCommandBuffer *cb)
             model.translate(0, 400, 0);
             model.rotate(m_angle, 1.0f, 0.0f, 0.0f);
         }
-        batch->uploadStaticBuffer(m_modelBuffer.get(),
+        batch->uploadStaticBuffer(m_modelBuffer1.get(),
                                   i * sizeof(float) * 16,
                                   sizeof(float) * 16,
                                   model.constData());
     }
 
-    // 更新
+
+    for (int i = 0; i < m_instances; i ++) {
+        QMatrix4x4 model;
+        model.setToIdentity();
+
+        if (i == 0) {
+            model.translate(-400, 0, 0);
+            model.rotate(m_angle, 1.0f, 0.0f, 0.0f);
+        }
+
+        if (i == 1) {
+            model.translate(0, -400, 0);
+            model.rotate(m_angle, 1.0f, 0.0f, 0.0f);
+        }
+        batch->uploadStaticBuffer(m_modelBuffer2.get(),
+                                  i * sizeof(float) * 16,
+                                  sizeof(float) * 16,
+                                  model.constData());
+    }
+
+
+    // // 更新
     cb->resourceUpdate(batch);
     cb->setShaderResources(m_srb.get());
 
-    cb->draw(6, 1, 0, 0);
-    cb->draw(3, 1, 6, 1);
+    const QRhiCommandBuffer::VertexInput vbufBindings1[] = {
+        { m_vectexBuffer1.get(), 0 },
+        { m_modelBuffer1.get(), 0 }
+    };
+    cb->setVertexInput(0, 2, vbufBindings1);
+    cb->draw(6, 2);
+
+    const QRhiCommandBuffer::VertexInput vbufBindings2[] = {
+        { m_vectexBuffer2.get(), 0 },
+        { m_modelBuffer2.get(), 0 }
+    };
+    cb->setVertexInput(0, 2, vbufBindings2);
+
+    cb->draw(3, 2);
 
     // 绘制实例，由36个顶点构成，顶点属性数据从偏移量0开始，实例id为0。这里需要注意，实例
     // id是很重要的一个参数，它用于着色器索引 model 矩阵的数据。在本例中 model 矩阵数据
