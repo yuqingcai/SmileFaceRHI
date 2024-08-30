@@ -43,7 +43,8 @@ private:
     int m_uniformBufferBlockSize = 0;
     int m_uniformBufferBlockCount = 1;
 
-    int m_instances = 4;
+    int m_instances1 = 4000;
+    int m_instances2 = 4000;
     glm::mat4* m_models1;
     glm::mat4* m_models2;
 };
