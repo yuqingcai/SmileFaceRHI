@@ -42,7 +42,6 @@ private:
     int m_uniformBufferBlockCount = 1;
 
     int m_instances = 4;
-    glm::mat4* m_models;
 };
 
 class SmileFace: public QQuickRhiItem

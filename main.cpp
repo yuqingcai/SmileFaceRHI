@@ -5,6 +5,8 @@ int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
 
+    qputenv("QSG_RHI_BACKEND", "opengl");
+
     QQmlApplicationEngine engine;
     QObject::connect(
         &engine,
