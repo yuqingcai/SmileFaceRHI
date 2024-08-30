@@ -11,8 +11,8 @@ static QShader getShader(const QString &name)
 }
 
 
-float vertexData1[] = {
 
+float vertexData1[] = {
     //---- Position------   -----Color-----
     // X       Y       Z    R     G     B
 
@@ -462,7 +462,7 @@ void SmileFaceRenderer::initialize(QRhiCommandBuffer *cb)
                                  // PerVertex 表示该顶点属性的索引是以“顶点”进行递增的
                                  { 6 * sizeof(float), QRhiVertexInputBinding::PerVertex },
                                  // PerInstance 表示该顶点属性的索引是以“实例”进行递增的
-                                 { sizeof(glm::mat4), QRhiVertexInputBinding::PerInstance },
+                                 { 64, QRhiVertexInputBinding::PerInstance },
                                  });
 
         inputLayout.setAttributes({
